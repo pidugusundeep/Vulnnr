@@ -906,7 +906,7 @@ def auto(url):
             #Exploit(url)
             Exploitt(site)
     except Exception as e:
-        print(e)
+        #print(e)
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
