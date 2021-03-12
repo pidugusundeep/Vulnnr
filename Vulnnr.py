@@ -949,7 +949,7 @@ def main():
         xhelp()
     elif userinput == "help":
         xhelp()
-    elif userinput == "port":
+    elif userinput == "mailman":
         mailman()
     elif userinput == "wpversion":
         url = input(f"Site{RED}: {RESET}")
