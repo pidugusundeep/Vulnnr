@@ -11,7 +11,7 @@
 <img src="https://pays.host/uploads/8ecc5016-9448-40c0-96c9-8acdc1303f29/UXjbj6Oh.png"> </img>
 
 ## Credits
-```python
+```json
 Credits to Nano => Creator
 Credits to VulnX Github Project, used CMS detector
 Credits to hellsec => idk hes just cool boyo
