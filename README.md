@@ -1,19 +1,8 @@
 # Vulnnr
 
-
-## Req
-```bash
-sudo apt-get install python3
-sudo apt-get install python3-pip
-```
-
 ## How to use?
 <p>
-  well currently i only have 3 command's done, wpscan, mailman, port<br>
-  port => enter a site (www.google.com) will check what port it is on<br>
-  mailman => enter a site, will use the cloudssp method to get origin server ip, backend<br>
-  wpscan => enter a site, will scan CMS, wordpress version, users, plugins, and auto exploit<br>
-  help => not finshed<br>
+  create a target list or select one target, scan exploit done!
 </p>
 
 ## Examples
