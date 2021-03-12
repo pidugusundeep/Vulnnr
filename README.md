@@ -17,7 +17,7 @@ sudo apt-get install python3-pip
 </p>
 
 ## Examples
-<img src="https://pays.host/uploads/8ecc5016-9448-40c0-96c9-8acdc1303f29/mAdkIzKy.png"> </img>
+<img src="https://pays.host/uploads/8ecc5016-9448-40c0-96c9-8acdc1303f29/lem75DJF.png"> </img>
 
 ## Credits
 ```python
