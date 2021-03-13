@@ -1,6 +1,7 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
 import urllib3
 from Exploits.com_bjcontact import bj
+from modules.search import dorker
 from multiprocessing import Pool, freeze_support
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from colorama import Fore
@@ -79,7 +80,8 @@ dirs = [
     '/wp-content/vendor/phpunit/phpunit/build.xml',
     '/wp-admin/setup-config.php?step=0',
     '/fckeditor/editor/filemanager/connectors/php/upload.php?Type=Media',
-    '/wp-admin/setup-config.php'
+    '/wp-admin/setup-config.php',
+    '/wp-admin/admin-ajax'
 
 ]
 
@@ -767,7 +769,7 @@ def parms(site):
         #print(urls)
         prams = []
         for url in urls:
-            if "?" in str(url):
+            if ".php?" in str(url):
                 prams.append(site + '/' + url)
                 
                 for url in prams:
@@ -982,7 +984,7 @@ def auto(url):
             Triconsole(url)
             
     except Exception as e:
-        print(e)
+        #print(e)
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
@@ -1015,11 +1017,11 @@ def Triconsole(url):
             filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
             with open(filename, "a+") as f:
                 f.write(test.url + '\n')
-            print(f"{PURPLE} [ {GREEN}! {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+            print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
         
     elif "Vulnnr" in test1.text:
         if test1.status_code == 200:
-            print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+            print(f"{PURPLE} [ {GREEN}$ {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
             filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
             with open(filename, "a+") as f:
                 f.write(test1.url + '\n')
@@ -1145,6 +1147,7 @@ def xhelp():
     {PURPLE}[ {GREEN}5 {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
     {PURPLE}[ {GREEN}6 {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
     {PURPLE}[ {GREEN}7 {PURPLE}] {RESET}sql {PURPLE}=> {RESET}Sql injection Scanner
+    {PURPLE}[ {GREEN}8 {PURPLE}] {RESET}dorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter
     
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
     {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
@@ -1174,7 +1177,23 @@ def main():
         portcheck()
     if userinput == "xhelp":
         xhelp()
-    
+    if userinput == "dorker":
+        dork = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Dork {PURPLE}=> {RESET}")
+        try:
+            count = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}ScrapeCount {PURPLE}=> {RESET}")
+        except:
+            return
+
+        
+        dorker(dork, count)
+        file_name = "Results/Dorked.txt"
+        with open(file_name, 'r') as f:
+            buf = f.readlines()
+            if buf[-1] == '\n':
+                buf = buf[:-1]
+            urls = [x[:-1] for x in buf]
+            for url in urls:
+                auto(url)
     elif userinput == "help":
         xhelp()
     elif userinput == "mailman":
