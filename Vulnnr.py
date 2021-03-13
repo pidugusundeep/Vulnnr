@@ -1,5 +1,6 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
 import urllib3
+from Exploits.com_bjcontact import bj
 from multiprocessing import Pool, freeze_support
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from colorama import Fore
@@ -560,7 +561,8 @@ def phpver(url):
     #if "Set-Cookie" in getvs:
         #print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Cookie {PURPLE}=> {GREEN}" + getvs['Set-Cookie'])
     else:
-        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Serverinfo {PURPLE}=> {RED}Not Found")
+        pass
+        #print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Serverinfo {PURPLE}=> {RED}Not Found")
 
 
 
@@ -970,6 +972,7 @@ def auto(url):
             com_portfolio(url)
             com_jck(url)
             Triconsole(url)
+            bj(url)
 
         else:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
