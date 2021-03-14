@@ -14,10 +14,13 @@ RESET = Fore.RESET
 
 def dorker(dork, count):
     requ = 0
+    filename = "Results/Dorked.txt"
     counter = 0
+    f = open(filename, "w+")
+        
     for results in search(dork, tld="com", lang="en", num=int(count), start=0, stop=None, pause=2):
         counter = counter + 1
-        filename = "Results/Dorked.txt"
+        
         print (f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET}", counter, results.split('/')[2])
         
         time.sleep(0.1)
@@ -25,8 +28,8 @@ def dorker(dork, count):
         if requ >= int(count):
             break
         data = (counter, results)
+        f.write("http://"+results.split('/')[2] + "/" + '\n')
         
-        with open(filename, "a+") as f:
-            f.write("http://"+results.split('/')[2] + "/" + '\n')
+    f.close()
     print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}saved results to {GREEN}{filename}")
         

