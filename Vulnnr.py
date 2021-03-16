@@ -6,6 +6,7 @@ from Exploits.Hrsale import *
 from modules.search import dorker
 from Exploits.CVE202011731 import Media
 from Exploits.asistorage import asistorage
+from modules.dirscan import dirscan
 import Exploits.colors
 from multiprocessing import Pool, freeze_support
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -1197,6 +1198,7 @@ def xhelp():
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
     {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
     {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
+    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}dirs Scanner
     """)
     return main()
 
@@ -1247,11 +1249,17 @@ def main():
         site = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {RESET}")
         Exploitt(site)
     elif userinput == "wpversion":
-        url = input(f"Site{RED}: {RESET}")
+        url = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {RESET}")
         wp_version(url)
         return main()
+    elif userinput == "wpplugins":
+        url = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {RESET}")
+        wp_plugin(url)
+        return main()
+    elif userinput == "dirscan":
+        dirscan()
     elif userinput == "wpthemes":
-        url = input(f"Site{RED}: {RESET}")
+        url = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Site {PURPLE}=> {RESET}")
         wp_themes(url)
         return main()
 
