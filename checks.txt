@@ -1,0 +1,4 @@
+Version: 1.2
+Name: Vulnnr
+Credits: Nano, Hellsec, kirk
+Info: {COMINGSOON}
