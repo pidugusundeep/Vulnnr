@@ -2,7 +2,9 @@
 <center><img src='https://i.imgur.com/mbEc38Y.png'> </img></center>
 
 ## About
+
 <p>
+  Version: 1.2<br>
   create a target list or select one target, scan exploit done!<br>
   Vulnnr is a Vulnerability Scanner & Auto Exploiter You can use this tool to check the security by finding the vulnerability in your website or you can use this tool to Get Shells
 </p>
