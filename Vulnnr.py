@@ -70,7 +70,7 @@ banner()
 
 def autoupdate():
     print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Checking for updates...")
-    test = requests.get("https://raw.githubusercontent.com/X-x-X-0/Vulnnr/main/checks.txt")
+    test = requests.get("https://github.com/X-x-X-0/Vulnnr/blob/main/checks.txt")
     time.sleep(3)
     if Version in test.text:
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}looks like u are using Vulnnr v{Version} upto date!")
