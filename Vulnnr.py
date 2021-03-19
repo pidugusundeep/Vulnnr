@@ -31,8 +31,10 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.4"
+Version = "1.2.5"
 timeout = 5
+
+
 HEADERS = {
     'User-Agent': 'Vulnnr-WIN!10',
     'Content-type' : '*/*',
@@ -957,7 +959,7 @@ def xss(site):
                     #print(url.replace('///', '/'))
                     XSS = requests.get(url + '"><h1>Vulnnr</h1>', timeout=5, headers=HEADERS)
                    
-                    if 'Vulnnr' in XSS.text:
+                    if '<h1>Vulnnr</h1>' in XSS.text:
                         
                         with open(filename, "a+") as f:
                             f.write(f"{url.replace('///', '/')}\n")
