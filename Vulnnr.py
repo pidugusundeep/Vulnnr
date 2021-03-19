@@ -1,6 +1,7 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
 import urllib3, sys
 from Exploits.com_bjcontact import bj
+from random import *
 from Exploits.CVE202126723 import Jenzabar
 from Exploits.Hrsale import *
 from modules.search import dorker
@@ -30,7 +31,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.3"
+Version = "1.2.4"
 timeout = 5
 HEADERS = {
     'User-Agent': 'Vulnnr-WIN!10',
@@ -70,6 +71,14 @@ def banner():
 banner()
 
 
+def proxyss():
+    response = requests.get("https://sslproxies.org/")
+    soup = BeautifulSoup(response.content, 'html5lib')
+    proxy = {'https': choice(list(map(lambda x:x[0]+':'+x[1], list(zip(map(lambda x:x.text, 
+    soup.findAll('td')[::8]), map(lambda x:x.text, soup.findAll('td')[1::8]))))))}
+    return proxy
+
+proxy = proxyss()
 def autoupdate():
     print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Checking for updates...")
     test = requests.get("https://github.com/X-x-X-0/Vulnnr/blob/main/checks.txt")
@@ -928,6 +937,35 @@ def parms(site):
     else:
         print(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}PramSpider {PURPLE}=> {RED}None Found")
         
+
+def xss(site):
+    ## LIL PRAM SPIDER
+
+    filename = "Results/XSS.txt"
+    GetLink = requests.get(site, timeout=10, headers=HEADERS)
+    urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.text).replace(site, ''))
+    if len(urls) != 0:
+        #print(urls)
+        prams = []
+        for url in urls:
+            if ".php?" in str(url):
+                prams.append(site + '/' + url)
+                
+                for url in prams:
+                    if "///" in urls:
+                        pass
+                    #print(url.replace('///', '/'))
+                    XSS = requests.get(url + '"><h1>Vulnnr</h1>', timeout=5, headers=HEADERS)
+                   
+                    if 'Vulnnr' in XSS.text:
+                        
+                        with open(filename, "a+") as f:
+                            f.write(f"{url.replace('///', '/')}\n")
+                                #f.write(test.text)
+                        f.close()
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {GREEN}{url.replace('///', '/')} {RESET}| {YELLOW}might be false ")
+            else:
+                return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {RED}None Found")
                 
 
 
@@ -1005,9 +1043,27 @@ def CheckSqli(MaybeSqli, site):
                     filename = "Results/SQLInjection.txt"
                     with open(filename, "a+") as f:
                         f.write(SQLI + '\n')
+                if "Warning" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
+                if "mysql_num_rows()" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
+                if "WHERE" in Checksqli.text:
+                    SQLI = url.replace("'", '')
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
+                    filename = "Results/SQLInjection.txt"
+                    with open(filename, "a+") as f:
+                        f.write(SQLI + '\n')
                     
                 try:
-                    Username = re.findall('/home/(.*)/public_html/', str(Checksqli.text))[0]
+                    Username = re.findall('/home/(.*)/', str(Checksqli.text))[0]
                     print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Found Box Username {PURPLE}=> {GREEN}"+Username)
                 except:
                     pass
@@ -1080,13 +1136,20 @@ def auto(url):
         
         mm = url.replace('https://', '').replace('http://', '').replace('https:', '').replace('http:', '').replace('/', '')
         host = dnsdump.hostsearch(mm)
+        
         print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {GREEN}{url} {RESET} ")
+        with open('config.json') as json_file:
+            data = json.load(json_file)
+        
+        if data['proxys'] == "yes":
+            print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Loaded proxy {PURPLE}=> {YELLOW}{proxy} {RESET}")
         
         
         
         print(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} CMS {PURPLE}=> {GREEN}", cms['name'])
         phpver(url)
         parms(site)
+        
         if "Wordpress" in cms['name']:
 
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting wpscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
@@ -1100,6 +1163,7 @@ def auto(url):
 
             dirs2(url)
             wp_dirs(url)
+            
             #Exploitt(site) SQL Injection does not go well with Wordpress LOL
             print("")
             Exploit(url)
@@ -1144,9 +1208,10 @@ def auto(url):
             bj(url)
             com_myblog(url)
             com_s5(url)
+            xss(site)
 
         else:
-            print(f"\n {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            print(f" {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
             asistorage(url)
@@ -1154,6 +1219,7 @@ def auto(url):
             Triconsole(url)
             Jenzabar(url)
             Hrsale(url)
+            xss(site)
 
         if "API count exceeded - Increase Quota with Membership" in host:
             pass
@@ -1388,15 +1454,8 @@ def portcheck():
 
 
 
-def proxys():
-    try:
-        response = requests.get("https://sslproxies.org/")
-        soup = BeautifulSoup(response.content, 'html5lib')
-        proxy = {'https': choice(list(map(lambda x:x[0]+':'+x[1], list(zip(map(lambda x:x.text, 
-        soup.findAll('td')[::8]), map(lambda x:x.text, soup.findAll('td')[1::8]))))))}
-        return proxy
-    except Exception as e:
-        pass
+
+
 
 def domainscan():
     
