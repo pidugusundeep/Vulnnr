@@ -12,6 +12,7 @@
 
 <img src="https://pays.host/uploads/8ecc5016-9448-40c0-96c9-8acdc1303f29/wnYwjeQY.gif"> </img>
 ```json
+git clone https://github.com/X-x-X-0/Vulnnr.git
 pip3 install -r requirements.txt
 python3 Vulnnr.py
 ```
