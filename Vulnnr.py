@@ -8,6 +8,7 @@ from modules.search import dorker
 from Exploits.CVE202011731 import Media
 from bs4 import BeautifulSoup
 from Exploits.eCommerce import eCommerce
+from googlesearch import search
 from Exploits.asistorage import asistorage
 import dnsdmpstr
 from dnsdmpstr import *
@@ -31,7 +32,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.5"
+Version = "1.2.6"
 timeout = 5
 
 
@@ -1496,9 +1497,65 @@ def domainscan():
     stfu
     '''
 
-        
+
+def oow(dork, count):
+    requ = 0
+    filename = "Results/AutoDorked.txt"
+    unclean = "Results/UncleanAutoDorked.txt"
+    counter = 0
+    f = open(filename, "a+")
+    u = open(unclean, "a+")
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5)\
+            AppleWebKit/537.36 (KHTML, like Gecko) Cafari/537.36'}
 
     
+    for results in search(dork, tld="com", lang="en", num=int(count), start=0, stop=None, pause=2):
+        counter = counter + 1
+        
+        print (f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET}", counter, results.split('/')[2])
+        
+        time.sleep(0.3)
+        requ += 1
+        if requ >= int(count):
+            break
+        data = (counter, results)
+        f.write("http://"+results.split('/')[2] + "/" + '\n')
+        r.write("http://"+results)
+    
+    
+    f.close()
+    r.close()
+    print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}saved results to {GREEN}{filename}")
+        
+def uu(dork):
+    cnn = requests.get("https://www.bing.com/search?q={dork}")
+    
+    finder = re.findall('<h2><a href="((?:https://|http://)[a-zA-Z0-9-_]+\\.*[a-zA-Z0-9][a-zA-Z0-9-_]+\\.[a-zA-Z]{2,11})', str(cnn.text))
+    print(finder)
+    #for u in finder:
+        #print(u)
+        
+def autodork():
+        print(f"{PURPLE} [ {GREEN}% {PURPLE}] {YELLOW} edit dorks.txt for dork list ")
+        print(f"{PURPLE} [ {GREEN}% {PURPLE}] {YELLOW} Sadly this is kind of broken maybe i need to add new search methods? ")
+        file_name = "dorks.txt"
+        with open(file_name, 'r') as f:
+            buf = f.readlines()
+            if buf[-1] == '\n':
+                buf = buf[:-1]
+            urls = [x[:-1] for x in buf]
+            for dork in urls:
+                try:
+                    print(f"\n{PURPLE} [ {GREEN}* {PURPLE}] {RESET}Using Dork {PURPLE}=> {GREEN}"+dork)
+                    oow(dork, "500")
+                    #uu(dork)
+                    time.sleep(16)
+                    print(f"\n{PURPLE} [ {GREEN}* {PURPLE}] {RESET}Done")
+                except Exception as e:
+                    print(f"{PURPLE} [ {GREEN}! {PURPLE}] {RED}{e}")
+                    time.sleep(30)
+                    pass
+
 
 def xhelp():
     print("")
@@ -1512,6 +1569,7 @@ def xhelp():
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}sql {PURPLE}=> {RESET}Sql injection Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autodorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter from a list of dorks
     
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
@@ -1542,6 +1600,8 @@ def main():
         portcheck()
     if userinput == "xhelp":
         xhelp()
+    if userinput == "autodorker":
+        autodork()
     if userinput == "dorker":
         dork = input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Dork {PURPLE}=> {RESET}")
         try:
@@ -1561,6 +1621,8 @@ def main():
                 auto(url)
     elif userinput == "help":
         xhelp()
+    
+        
     elif userinput == "domainscan":
         domainscan()
     elif userinput == "mailman":
