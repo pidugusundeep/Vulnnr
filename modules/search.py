@@ -34,7 +34,7 @@ def dorker(dork, count):
             break
         data = (counter, results)
         f.write("http://"+results.split('/')[2] + "/" + '\n')
-        u.write("http://"+results)
+        u.write("http://"+results + '\n')
     
     
     f.close()
