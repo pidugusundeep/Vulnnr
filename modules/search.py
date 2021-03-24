@@ -14,7 +14,7 @@ RESET = Fore.RESET
 
 def dorker(dork, count):
     requ = 0
-    filename = "Results/AutoDorked.txt"
+    filename = "Results/Dorked.txt"
     unclean = "Results/UncleanAutoDorked.txt"
     counter = 0
     f = open(filename, "w+")
@@ -34,7 +34,7 @@ def dorker(dork, count):
             break
         data = (counter, results)
         f.write("http://"+results.split('/')[2] + "/" + '\n')
-        u.write("http://"+results + '\n')
+        u.write(results + '\n')
     
     
     f.close()

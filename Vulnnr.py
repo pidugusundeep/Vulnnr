@@ -2,6 +2,7 @@ import os, requests, colorama, socket, getpass, subprocess, json, time, re, date
 import urllib3, sys
 from Exploits.com_bjcontact import bj
 from random import *
+
 from Exploits.CVE202126723 import Jenzabar
 from Exploits.Hrsale import *
 from modules.search import dorker
@@ -32,7 +33,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.6"
+Version = "1.2.7"
 timeout = 5
 
 
@@ -1008,6 +1009,54 @@ def CheckSqliURL(site, urls):
         return 
 
 
+def scanner():
+    host = input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Target {PURPLE}=>{RESET} ")
+    print(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Choose the type of scan:\n")
+    print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET} 1. Full Port Scan(1-65535) \n {PURPLE}[ {RED}* {PURPLE}]{RESET} 2. Specific port range\n {PURPLE}[ {RED}* {PURPLE}]{RESET} 3. Single Port \n {PURPLE}[ {RED}* {PURPLE}]{RESET} 4. Most popular ports\n")
+    type_of_scan = int(input(f" {PURPLE}[ {GREEN}? {PURPLE}] {RESET}Enter Your Choice: "))
+    if type_of_scan == 1:
+        ports = list(range(1, 65535))
+    elif type_of_scan == 2:
+        port1 = int(input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Enter starting port {PURPLE}=>{RESET} "))
+        port2 = int(input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Enter ending port {PURPLE}=>{RESET} "))
+        port2 += 1
+        ports = list(range(port1, port2))
+    elif type_of_scan == 3:
+        ports = []
+        ports.append(int(input(f" {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Enter the port to scan {RESET}=> ")))
+    elif type_of_scan == 4:
+        ports = [1, 5, 7, 18, 20, 21, 22, 23, 25, 43, 42, 53, 80, 109,
+                 110, 115, 118, 443, 194, 161, 445, 156, 137, 139, 3306]
+    else:
+        print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET} Wrong choice entered!")
+        input()
+        return
+    
+    
+    socket.setdefaulttimeout(2)
+    print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET} Scanning "+host)
+   
+    host = socket.gethostbyname(host)
+    print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET} IP of host: "+host)
+
+    try:
+        for port in ports:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            result = sock.connect_ex((host, port))
+            if result == 0:
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET} Port {PURPLE}=> {RESET}{port} Open")
+            sock.close()
+
+    except KeyboardInterrupt:
+        return print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET} You pressed Ctrl+C")
+    except socket.gaierror:
+        return print(f' {PURPLE}[ {RED}* {PURPLE}]{RESET} Hostname could not be resolved. Exiting')
+    except socket.error:
+        return print(f" {PURPLE}[ {RED}* {PURPLE}]{RESET}Couldn't connect to server")
+    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Done")
+    
+
+
 
 def CheckSqli(MaybeSqli, site):
     for url in MaybeSqli:
@@ -1227,11 +1276,11 @@ def auto(url):
         if "API count exceeded - Increase Quota with Membership" in host:
             pass
         else:
-            print(f"\n {PURPLE} [ {GREEN}~ {RESET} Domain scan {GREEN}~{RESET} {PURPLE}]{RESET}")
+            print(f"\n{PURPLE} [ {GREEN}~ {RESET} Domain scan {GREEN}~{RESET} {PURPLE}]{RESET}")
             print(f"{GREEN}{host.replace(',', ' : ')}")
 
     except Exception as e:
-        print(e) 
+       
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
 
@@ -1564,17 +1613,19 @@ def xhelp():
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}mailman {PURPLE}=> {RESET}Cloudssp exploit
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}vulnscan {PURPLE}=> {RESET}Vuln Scanner/exploiter single target
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}vulnauto {PURPLE}=> {RESET}Vuln Scanner/exploiter list
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autodorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter from a list of dorks
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpversion {PURPLE}=> {RESET}Wordpress Version Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpthemes {PURPLE}=> {RESET}Wordpress Theme Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}wpplugins {PURPLE}=> {RESET}Wordpress Plugins Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}sql {PURPLE}=> {RESET}Sql injection Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter
-    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autodorker {PURPLE}=> {RESET}Auto dorker Scanner/exploiter from a list of dorks
+    
     
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}dirs Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}portscanner {PURPLE}=> {RESET}Port Scanner
     """)
     return main()
 
@@ -1600,6 +1651,8 @@ def main():
         portcheck()
     if userinput == "xhelp":
         xhelp()
+    if userinput == "portscanner":
+        scanner()
     if userinput == "autodorker":
         autodork()
     if userinput == "dorker":
