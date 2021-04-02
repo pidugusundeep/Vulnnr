@@ -5,7 +5,7 @@
 
 <p>
  
-  create a target list or select one target, scan exploit done!<br>
+  create a target list or select one target, scans then exploits, done!<br>
   Vulnnr is a Vulnerability Scanner & Auto Exploiter You can use this tool to check the security by finding the vulnerability in your website or you can use this tool to Get Shells
 </p>
 
