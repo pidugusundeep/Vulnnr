@@ -47,6 +47,15 @@ Credits to Nano => Creator
 Credits to VulnX Github Project, used CMS detector
 Credits to hellsec => idk hes just cool boyo
 ```
+### Help
+also version of python is 3.8
+if u get any error for bs4, or googlesearch run these commands
+```python
+pip install bs4
+pip install html5lib
+pip install lxml
+pip install google
+```
 ## Reason
 <small><b>
 Well really there was one reason into making this<br>
