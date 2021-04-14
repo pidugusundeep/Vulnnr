@@ -34,7 +34,7 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.2.9"
+Version = "1.3"
 timeout = 8
 
 
@@ -1588,7 +1588,7 @@ def auto(url):
 
         else:
             print(f" {PURPLE}[ {GREEN}~ {RESET} Could not detect CMS {GREEN}~{RESET} {PURPLE}]{RESET}\n")
-            bootme(url)
+            
             dirs2(url)
             dorkinfo(url)
             #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
