@@ -3,7 +3,7 @@ import colorama
 from colorama import Fore, init
 init()
 
-file_name = input(f"{Fore.RED}[ {Fore.GREEN}? {Fore.RED}] {Fore.RESET}File path {Fore.LIGHTMAGENTA_EX}=>{Fore.RESET} ")
+file_name = input(f" {Fore.RED}[ {Fore.GREEN}? {Fore.RED}] {Fore.RESET}File path {Fore.LIGHTMAGENTA_EX}=>{Fore.RESET} ")
 oop  = open(file_name, 'r').readlines()
 lol = len(oop)
 def auto(url):
@@ -15,6 +15,9 @@ def auto(url):
             print(' {}[ {}$ {}] {}Working Shell => {}'.format(Fore.RED, Fore.GREEN, Fore.RED, Fore.RESET, o.url))
         elif "-rw-r--r--" in o.text:
             print(' {}[ {}$ {}] {}Working Shell => {}'.format(Fore.RED, Fore.GREEN, Fore.RED, Fore.RESET, o.url))
+        if "404" in o.text:
+            pass
+
         else:
             
             

