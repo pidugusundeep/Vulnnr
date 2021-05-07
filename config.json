@@ -1,3 +1,4 @@
 {
-    "proxys": "no"
+    "proxys": "no",
+    "check-for-updates": "yes"
 }

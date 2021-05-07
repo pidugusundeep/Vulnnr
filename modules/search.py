@@ -23,7 +23,7 @@ def dorker(dork, count):
             AppleWebKit/537.36 (KHTML, like Gecko) Cafari/537.36'}
 
     
-    for results in search(dork, tld="com", lang="en", num=int(count), start=0, stop=None, pause=2):
+    for results in search(dork+" -github -stackoverflow -gitlab -git -code -pastebin -gitbucket -opensource", tld="com", lang="en", num=int(count), start=0, stop=None, pause=2):
         counter = counter + 1
         
         print (f" {PURPLE}[ {GREEN}$ {PURPLE}]{RESET}", counter, results.split('/')[2])
